@@ -1,0 +1,10 @@
+bower_components
+node_modules
+npm-debug.log
+test/unit/gen/*
+!test/unit/gen/.gitkeep
+test/unit/output/*
+!test/unit/output/.gitkeep
+dist/*
+!dist/.gitkeep
+doc/js

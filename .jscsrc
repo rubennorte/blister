@@ -1,0 +1,5 @@
+{
+  "excludeFiles": ["test/unit/gen","test/unit/fixtures","test/unit/output"],
+  "preset": "google",
+  "maximumLineLength": 100
+}

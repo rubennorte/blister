@@ -1,0 +1,76 @@
+{
+  "name": "blister",
+  "version": "0.1.0",
+  "author": "Rubén Norte <rubennorte@gmail.com>",
+  "description": "Simple and elegant dependency injection container for JavaScript",
+  "license": "MIT",
+  "main": "src/blister.js",
+  "keywords": [
+    "dependency",
+    "injection",
+    "container",
+    "di",
+    "pimple",
+    "provider"
+  ],
+  "homepage": "https://github.com/rubennorte/blister",
+  "bugs": {
+    "url": "https://github.com/rubennorte/blister/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rubennorte/blister.git"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "lint:errors": "jshint src test --reporter node_modules/jshint-stylish/stylish.js --verbose",
+    "lint:style": "jscs src test --verbose",
+    "lint": "npm run lint:errors && npm run lint:style",
+    "browserify:js": "browserify src/blister.js --standalone Blister --debug | exorcist dist/blister.js.map > dist/blister.js",
+    "uglify:js": "uglifyjs dist/blister.js -o dist/blister.min.js --compress --mangle --in-source-map dist/blister.js.map --source-map dist/blister.min.js.map --source-map-url blister.min.js.map",
+    "build:js": "npm run browserify:js && npm run uglify:js",
+    "build": "npm test && npm run build:js",
+    "browserify:tests": "browserify test/unit/index.js -o test/unit/gen/unit-test-bundle.js --debug",
+    "watchify:tests": "watchify test/unit/index.js -o test/unit/gen/unit-test-bundle.js --verbose",
+    "build:tests": "npm run browserify:tests",
+    "pretest": "npm run lint",
+    "karma:ci": "karma start test/unit/config/karma-ci.conf.js",
+    "test": "npm run build:tests && npm run karma:ci",
+    "develop": "parallelshell \"npm run watchify:tests\" \"karma start test/unit/config/karma-dev.conf.js\"",
+    "release": "mversion -m \"New version: %s\"",
+    "doc:js": "jsdoc src --destination doc/js --readme README.md --verbose",
+    "doc": "npm run doc:js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "browserify": "^9.0.3",
+    "exorcist": "^0.3.0",
+    "jasmine-core": "^2.2.0",
+    "jscs": "^1.12.0",
+    "jsdoc": "^3.3.0-beta3",
+    "jshint": "^2.6.3",
+    "jshint-stylish": "^1.0.1",
+    "karma": "^0.12.31",
+    "karma-chrome-launcher": "^0.1.7",
+    "karma-cli": "0.0.4",
+    "karma-firefox-launcher": "^0.1.4",
+    "karma-ie-launcher": "^0.1.5",
+    "karma-jasmine": "^0.3.5",
+    "karma-junit-reporter": "^0.2.2",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-sourcemap-loader": "^0.3.4",
+    "karma-verbose-reporter": "0.0.2",
+    "mversion": "^1.10.0",
+    "parallelshell": "^1.1.1",
+    "phantomjs-polyfill": "0.0.1",
+    "uglifyjs": "^2.4.10",
+    "watchify": "^2.4.0"
+  },
+  "engines": {
+    "node": ">=0.10.0",
+    "npm": ">=2.0.0"
+  }
+}
