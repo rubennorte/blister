@@ -22,30 +22,39 @@ var wrappers = {
   /**
    * Returns a wrapper for a FACTORY dependency to be stored in the container
    * @param {Function} value The factory function
-   * @param {BlisterContainer} container The container to use as argument and
-   *                                     context for the factory
+   * @return {Function}
    */
-  FACTORY: function wrapFactory(value, container) {
-    return value.bind(container, container);
+  FACTORY: function wrapFactory(value, container, originalWrapper) {
+    return function() {
+      var originalValue = originalWrapper && originalWrapper();
+      return value.call(container, container, originalValue);
+    };
   },
 
   /**
    * Returns a wrapper for a SINGLETON dependency to be stored in the container
    * @param {Function} value The singleton generator function
-   * @param {BlisterContainer} container The container to use as argument and
-   *                                     context for the factory
+   * @return {Function}
    */
-  SINGLETON: function wrapSingleton(value, container) {
+  SINGLETON: function wrapSingleton(value, container, originalWrapper) {
     var cached = false;
     var cachedValue;
     return function() {
+      var originalValue;
       if (!cached) {
         cached = true;
-        cachedValue = value.call(container, container);
+        originalValue = originalWrapper && originalWrapper();
+        cachedValue = value.call(container, container, originalValue);
         value = null;
       }
       return cachedValue;
     };
+  },
+
+  wrap: function(type, value, container, originalWrapper) {
+    var wrapper = this[type](value, container, originalWrapper);
+    wrapper.type = type;
+    return wrapper;
   }
 
 };
@@ -110,7 +119,7 @@ BlisterContainer.prototype = {
    */
   get: function(id) {
     var wrapper = this._deps[id];
-    return wrapper && wrapper();
+    return wrapper && wrapper(this);
   },
 
   /**
@@ -133,13 +142,33 @@ BlisterContainer.prototype = {
    * @return {BlisterContainer} The container itself
    */
   set: function(id, value, type) {
+    return this._set(id, value, type);
+  },
+
+  extend: function(id, value, type) {
+    if (!this._deps[id]) {
+      throw new Error('Cannot extend a dependency not previously set: ' + id);
+    }
+
+    return this._set(id, value, type, true);
+  },
+
+  _set: function(id, value, type, isExtension) {
     if (typeof id !== 'string') {
       throw new TypeError('The dependency id must be a string: ' + id);
     }
 
+    var originalWrapper = isExtension ? this._deps[id] : undefined;
+
     var typeOfValue = typeof value;
     if (!type) {
-      type = (typeOfValue === 'function') ? this.SINGLETON : this.VALUE;
+      if (typeOfValue !== 'function') {
+        type = this.VALUE;
+      } else if (isExtension) {
+        type = originalWrapper.type;
+      } else {
+        type = this.SINGLETON;
+      }
     }
 
     if (typeOfValue !== 'function' && type !== this.VALUE) {
@@ -148,7 +177,7 @@ BlisterContainer.prototype = {
         value);
     }
 
-    this._deps[id] = wrappers[type](value, this);
+    this._deps[id] = wrappers.wrap(type, value, this, originalWrapper);
     return this;
   },
 
