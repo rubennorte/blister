@@ -1,6 +1,7 @@
 'use strict';
 
 var wrappers = require('./wrappers');
+var blisterDependencyTypes = require('./blister-dependency-types');
 
 /**
  * Dependency injection container constructor
@@ -11,6 +12,7 @@ var wrappers = require('./wrappers');
  * container.get('id'); //> 'value';
  *
  * @class
+ * @mixes blisterDependencyTypes
  */
 function BlisterContainer() {
   this._deps = {};
@@ -19,30 +21,6 @@ function BlisterContainer() {
 BlisterContainer.prototype = {
 
   constructor: BlisterContainer,
-
-  /**
-   * Type for VALUE dependencies.
-   * It is the default type for dependencies specified as primitives: strings,
-   * numbers, booleans, etc.
-   *
-   * @constant {string}
-   */
-  VALUE: 'VALUE',
-
-  /**
-   * Type for SINGLETON dependencies.
-   * It is the default type for dependencies specified as functions
-   *
-   * @constant {string}
-   */
-  SINGLETON: 'SINGLETON',
-
-  /**
-   * Type for FACTORY dependencies
-   *
-   * @constant {string}
-   */
-  FACTORY: 'FACTORY',
 
   /**
    * Returns the dependency set with the given id,
@@ -71,7 +49,7 @@ BlisterContainer.prototype = {
    * @param {string} id The dependency id
    * @param {*|Function} [value] The dependency definition
    * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
-   *                                       properties of a BlisterContainer
+   *                                       properties
    * @return {BlisterContainer} The container itself
    */
   set: function(id, value, type) {
@@ -87,7 +65,7 @@ BlisterContainer.prototype = {
    * @param {string} id The dependency id
    * @param {*|Function} [value] The dependency definition
    * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
-   *                                       properties of a BlisterContainer
+   *                                       properties
    * @return {BlisterContainer} The container itself
    */
   extend: function(id, value, type) {
@@ -105,7 +83,7 @@ BlisterContainer.prototype = {
    * @param {string} id The dependency id
    * @param {*|Function} [value] The dependency definition
    * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
-   *                                       properties of a BlisterContainer
+   *                                       properties
    * @param {boolean} isExtension Determines if extends a previous dependency,
    *                              so the original value is stored and passed to
    *                              the new definition
@@ -150,5 +128,11 @@ BlisterContainer.prototype = {
   }
 
 };
+
+for (var i in blisterDependencyTypes) {
+  if (blisterDependencyTypes.hasOwnProperty(i)) {
+    BlisterContainer.prototype[i] = blisterDependencyTypes[i];
+  }
+}
 
 module.exports = BlisterContainer;
