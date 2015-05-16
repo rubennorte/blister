@@ -2,7 +2,7 @@
   "name": "blister",
   "version": "0.1.0",
   "author": "Rubén Norte <rubennorte@gmail.com>",
-  "description": "Simple and elegant dependency injection container for JavaScript",
+  "description": "Minimalist dependency injection container for JavaScript",
   "license": "MIT",
   "main": "src/blister.js",
   "keywords": [
