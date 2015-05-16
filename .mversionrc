@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "precommit": "npm run build && git add -f dist"
+    "precommit": "npm run prepare-release && git add -f dist"
   }
 }
