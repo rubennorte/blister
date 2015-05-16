@@ -4,17 +4,9 @@ Minimalist dependency injection container for JavaScript, inspired by Fabien Pot
 
 ## Installation
 
-### Node
+The package is available as a UMD module: compatible with AMD, CommonJS and exposing a global variable `Blister` in `dist/blister.min.js` (910 bytes minified and gzipped).
 
-```bash
-npm install blister
-```
-
-### Browser
-
-The package is available as a UMD module: compatible with AMD, CommonJS and exposing a global variable `Blister` in `dist/blister.js` (910 bytes minified and gzipped).
-
-It can be installed with npm, Bower or downloaded directly from the repository:
+It can be installed via npm (for both Node.js and browserify/webpack), Bower or downloading it from the repository:
 
 ```bash
 npm install blister
