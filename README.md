@@ -19,12 +19,17 @@ bower install blister
 
 ```js
 var Blister = require('blister');
+```
 
+```js
 require(['blister'], function(Blister) {
-  //...
+  // Usage
 });
+```
 
-var Blister = window.Blister;
+```html
+<script src="bower_components/blister/dist/blister.min.js"></script>
+<script>var Blister = window.Blister;</script>
 ```
 
 ### Basic usage
