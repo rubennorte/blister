@@ -1,7 +1,15 @@
 'use strict';
 
 var wrappers = require('./wrappers');
-var blisterDependencyTypes = require('./blister-dependency-types');
+
+/**
+ * @enum {string}
+ */
+var blisterDependencyType = {
+  VALUE: 'VALUE',
+  SINGLETON: 'SINGLETON',
+  FACTORY: 'FACTORY'
+};
 
 /**
  * Dependency injection container constructor
@@ -12,7 +20,6 @@ var blisterDependencyTypes = require('./blister-dependency-types');
  * container.get('id'); //> 'value';
  *
  * @class
- * @mixes blisterDependencyTypes
  */
 function BlisterContainer() {
   this._deps = {};
@@ -21,6 +28,30 @@ function BlisterContainer() {
 BlisterContainer.prototype = {
 
   constructor: BlisterContainer,
+
+  /**
+   * Type for VALUE dependencies.
+   * It is the default type for dependencies specified as primitives: strings,
+   * numbers, booleans, etc.
+   *
+   * @constant {string}
+   */
+  VALUE: blisterDependencyTypes.VALUE,
+
+  /**
+   * Type for SINGLETON dependencies.
+   * It is the default type for dependencies specified as functions
+   *
+   * @constant {string}
+   */
+  SINGLETON: blisterDependencyTypes.SINGLETON,
+
+  /**
+   * Type for FACTORY dependencies
+   *
+   * @constant {string}
+   */
+  FACTORY: blisterDependencyTypes.FACTORY,
 
   /**
    * Returns the dependency set with the given id,
@@ -48,7 +79,7 @@ BlisterContainer.prototype = {
    *
    * @param {string} id The dependency id
    * @param {*|Function} [value] The dependency definition
-   * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
+   * @param {blisterDependencyType} [type] VALUE, SINGLETON or FACTORY
    *                                       properties
    * @return {BlisterContainer} The container itself
    */
@@ -64,7 +95,7 @@ BlisterContainer.prototype = {
    *
    * @param {string} id The dependency id
    * @param {*|Function} [value] The dependency definition
-   * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
+   * @param {blisterDependencyType} [type] VALUE, SINGLETON or FACTORY
    *                                       properties
    * @return {BlisterContainer} The container itself
    */
@@ -82,7 +113,7 @@ BlisterContainer.prototype = {
    * @private
    * @param {string} id The dependency id
    * @param {*|Function} [value] The dependency definition
-   * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
+   * @param {blisterDependencyType} [type] VALUE, SINGLETON or FACTORY
    *                                       properties
    * @param {boolean} isExtension Determines if extends a previous dependency,
    *                              so the original value is stored and passed to
@@ -99,15 +130,15 @@ BlisterContainer.prototype = {
     var typeOfValue = typeof value;
     if (!type) {
       if (typeOfValue !== 'function') {
-        type = this.VALUE;
+        type = VALUE;
       } else if (isExtension) {
         type = originalWrapper.type;
       } else {
-        type = this.SINGLETON;
+        type = SINGLETON;
       }
     }
 
-    if (typeOfValue !== 'function' && type !== this.VALUE) {
+    if (typeOfValue !== 'function' && type !== VALUE) {
       throw new TypeError(
         'The value must be a function for types SINGLETON and FACTORY: ' +
         value);
@@ -129,10 +160,31 @@ BlisterContainer.prototype = {
 
 };
 
-for (var i in blisterDependencyTypes) {
-  if (blisterDependencyTypes.hasOwnProperty(i)) {
-    BlisterContainer.prototype[i] = blisterDependencyTypes[i];
-  }
-}
+/**
+ * Interface for service providers to use with BlisterContainer instances
+ *
+ * @interface BlisterServiceProvider
+ *
+ * @example
+ *
+ * // @implements {BlisterServiceProvider}
+ * var provider = {
+ *  register: function(container) {
+ *    container.set('protocol', 'http://');
+ *    container.set('host', 'example.com');
+ *  }
+ * };
+ *
+ * var container = new BlisterContainer();
+ * container.register(provider);
+ */
+
+/**
+ * @function
+ * @name BlisterServiceProvider#register
+ * @description Registers an indeterminate number of dependencies in the passed
+ *              container
+ * @param {BlisterContainer} container
+ */
 
 module.exports = BlisterContainer;
