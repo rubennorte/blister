@@ -62,32 +62,6 @@ var wrappers = {
  */
 
 /**
- * Interface for service providers to use with Blister instances
- *
- * @interface BlisterServiceProvider
- *
- * @example
- *
- * // @implements {BlisterServiceProvider}
- * var provider = {
- *  register: function(container) {
- *    container.set('protocol', 'http://');
- *    container.set('host', 'example.com');
- *  }
- * };
- *
- * var container = new Blister();
- * container.register(provider);
- */
-
-/**
- * @function
- * @name BlisterServiceProvider#register
- * @description Registers an indeterminate number of dependencies in the passed container
- * @param {Blister} container
- */
-
-/**
  * Dependency injection container constructor
  *
  * @example
@@ -188,5 +162,31 @@ Blister.prototype = {
   }
 
 };
+
+/**
+ * Interface for service providers to use with Blister instances
+ *
+ * @interface BlisterServiceProvider
+ *
+ * @example
+ *
+ * // @implements {BlisterServiceProvider}
+ * var provider = {
+ *  register: function(container) {
+ *    container.set('protocol', 'http://');
+ *    container.set('host', 'example.com');
+ *  }
+ * };
+ *
+ * var container = new Blister();
+ * container.register(provider);
+ */
+
+/**
+ * @function
+ * @name BlisterServiceProvider#register
+ * @description Registers an indeterminate number of dependencies in the passed container
+ * @param {Blister} container
+ */
 
 module.exports = Blister;
