@@ -21,28 +21,28 @@ var wrappers = {
 
   /**
    * Returns a wrapper for a FACTORY dependency to be stored in the container
-   * @param {Function} factory The factory function
+   * @param {Function} value The factory function
    * @param {BlisterContainer} container The container to use as argument and
    *                                     context for the factory
    */
-  FACTORY: function wrapFactory(factory, container) {
-    return factory.bind(container, container);
+  FACTORY: function wrapFactory(value, container) {
+    return value.bind(container, container);
   },
 
   /**
    * Returns a wrapper for a SINGLETON dependency to be stored in the container
-   * @param {Function} singletonFactory The singleton generator function
+   * @param {Function} value The singleton generator function
    * @param {BlisterContainer} container The container to use as argument and
    *                                     context for the factory
    */
-  SINGLETON: function wrapSingleton(singletonFactory, container) {
+  SINGLETON: function wrapSingleton(value, container) {
     var cached = false;
     var cachedValue;
     return function() {
       if (!cached) {
         cached = true;
-        cachedValue = singletonFactory.call(container, container);
-        singletonFactory = null;
+        cachedValue = value.call(container, container);
+        value = null;
       }
       return cachedValue;
     };
