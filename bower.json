@@ -4,7 +4,7 @@
   "author": "Rubén Norte <rubennorte@gmail.com>",
   "description": "Minimalist dependency injection container for JavaScript",
   "license": "MIT",
-  "main": "dist/blister.min.js",
+  "main": "dist/blister.js",
   "keywords": [
     "dependency",
     "injection",
