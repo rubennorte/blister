@@ -22,8 +22,8 @@ var wrappers = {
   /**
    * Returns a wrapper for a FACTORY dependency to be stored in the container
    * @param {Function} factory The factory function
-   * @param {Blister} container The container to use as argument and context
-   *                            for the factory
+   * @param {BlisterContainer} container The container to use as argument and
+   *                                     context for the factory
    */
   FACTORY: function wrapFactory(factory, container) {
     return factory.bind(container, container);
@@ -32,8 +32,8 @@ var wrappers = {
   /**
    * Returns a wrapper for a SINGLETON dependency to be stored in the container
    * @param {Function} singletonFactory The singleton generator function
-   * @param {Blister} container The container to use as argument and context
-   *                            for the factory
+   * @param {BlisterContainer} container The container to use as argument and
+   *                                     context for the factory
    */
   SINGLETON: function wrapSingleton(singletonFactory, container) {
     var cached = false;
@@ -51,10 +51,9 @@ var wrappers = {
 };
 
 /**
- * @name DependencyType
- * @description Possible dependency types to register in a Blister container.
- *               These constants are available as properties of all Blister
- *               instances.
+ * @name BlisterDependencyType
+ * @description Possible dependency types to register in a BlisterContainer.
+ *               These constants are available as properties of all instances.
  * @enum {string}
  * @property {string} VALUE
  * @property {string} FACTORY
@@ -65,19 +64,19 @@ var wrappers = {
  * Dependency injection container constructor
  *
  * @example
- * var container = new Blister();
+ * var container = new BlisterContainer();
  * container.set('id', 'value');
  * container.get('id'); //> 'value';
  *
  * @class
  */
-function Blister() {
+function BlisterContainer() {
   this._deps = {};
 }
 
-Blister.prototype = {
+BlisterContainer.prototype = {
 
-  constructor: Blister,
+  constructor: BlisterContainer,
 
   /**
    * Type for VALUE dependencies.
@@ -129,9 +128,9 @@ Blister.prototype = {
    *
    * @param {string} id The dependency id
    * @param {*|Function} [value] The dependency definition
-   * @param {DependencyType} [type] VALUE, SINGLETON or FACTORY properties of a
-   *                        Blister instance
-   * @return {Blister} The container itself
+   * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
+   *                                       properties of a BlisterContainer
+   * @return {BlisterContainer} The container itself
    */
   set: function(id, value, type) {
     if (typeof id !== 'string') {
@@ -144,7 +143,9 @@ Blister.prototype = {
     }
 
     if (typeOfValue !== 'function' && type !== this.VALUE) {
-      throw new TypeError('The value must be a function for types SINGLETON and FACTORY: ' + value);
+      throw new TypeError(
+        'The value must be a function for types SINGLETON and FACTORY: ' +
+        value);
     }
 
     this._deps[id] = wrappers[type](value, this);
@@ -154,7 +155,7 @@ Blister.prototype = {
   /**
    * Calls register on the given service provider to register its dependencies
    * @param  {BlisterServiceProvider} provider
-   * @return {Blister} the container itself
+   * @return {BlisterContainer} the container itself
    */
   register: function(provider) {
     provider.register(this);
@@ -164,7 +165,7 @@ Blister.prototype = {
 };
 
 /**
- * Interface for service providers to use with Blister instances
+ * Interface for service providers to use with BlisterContainer instances
  *
  * @interface BlisterServiceProvider
  *
@@ -178,15 +179,16 @@ Blister.prototype = {
  *  }
  * };
  *
- * var container = new Blister();
+ * var container = new BlisterContainer();
  * container.register(provider);
  */
 
 /**
  * @function
  * @name BlisterServiceProvider#register
- * @description Registers an indeterminate number of dependencies in the passed container
- * @param {Blister} container
+ * @description Registers an indeterminate number of dependencies in the passed
+ *              container
+ * @param {BlisterContainer} container
  */
 
-module.exports = Blister;
+module.exports = BlisterContainer;

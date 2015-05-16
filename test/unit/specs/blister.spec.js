@@ -1,22 +1,22 @@
 'use strict';
 
-var Blister = require('../../../src/blister');
+var BlisterContainer = require('../../../src/blister');
 
-describe('Blister', function() {
+describe('BlisterContainer', function() {
 
   it('should be a class with the proper API', function() {
-    expect(Blister).toEqual(jasmine.any(Function));
-    expect(Blister.prototype.get).toEqual(jasmine.any(Function));
-    expect(Blister.prototype.set).toEqual(jasmine.any(Function));
-    expect(Blister.prototype.register).toEqual(jasmine.any(Function));
-    expect(Blister.prototype.VALUE).toEqual(jasmine.any(String));
-    expect(Blister.prototype.SINGLETON).toEqual(jasmine.any(String));
-    expect(Blister.prototype.FACTORY).toEqual(jasmine.any(String));
+    expect(BlisterContainer).toEqual(jasmine.any(Function));
+    expect(BlisterContainer.prototype.get).toEqual(jasmine.any(Function));
+    expect(BlisterContainer.prototype.set).toEqual(jasmine.any(Function));
+    expect(BlisterContainer.prototype.register).toEqual(jasmine.any(Function));
+    expect(BlisterContainer.prototype.VALUE).toEqual(jasmine.any(String));
+    expect(BlisterContainer.prototype.SINGLETON).toEqual(jasmine.any(String));
+    expect(BlisterContainer.prototype.FACTORY).toEqual(jasmine.any(String));
   });
 
   var container;
   beforeEach(function() {
-    container = new Blister();
+    container = new BlisterContainer();
   });
 
   describe('set(id, value, type)', function() {
