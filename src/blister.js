@@ -22,6 +22,8 @@ var wrappers = {
   /**
    * Returns a wrapper for a FACTORY dependency to be stored in the container
    * @param {Function} value The factory function
+   * @param {BlisterContainer} container
+   * @param {Function} [originalWrapper]
    * @return {Function}
    */
   FACTORY: function wrapFactory(value, container, originalWrapper) {
@@ -34,6 +36,8 @@ var wrappers = {
   /**
    * Returns a wrapper for a SINGLETON dependency to be stored in the container
    * @param {Function} value The singleton generator function
+   * @param {BlisterContainer} container
+   * @param {Function} [originalWrapper]
    * @return {Function}
    */
   SINGLETON: function wrapSingleton(value, container, originalWrapper) {
@@ -51,7 +55,15 @@ var wrappers = {
     };
   },
 
-  wrap: function(type, value, container, originalWrapper) {
+  /**
+   * Returns a wrapper for the given parameters
+   * @param  {BlisterDependencyType} type
+   * @param  {*|Function} value
+   * @param  {BlisterContainer} container
+   * @param  {Function} [originalWrapper]
+   * @return {Function}
+   */
+  create: function(type, value, container, originalWrapper) {
     var wrapper = this[type](value, container, originalWrapper);
     wrapper.type = type;
     return wrapper;
@@ -145,6 +157,18 @@ BlisterContainer.prototype = {
     return this._set(id, value, type);
   },
 
+  /**
+   * Extends the specified dependency in the container with the given type.
+   *
+   * If no type is passed, inherits the original type if it is a function or
+   * it is defined as VALUE otherwise.
+   *
+   * @param {string} id The dependency id
+   * @param {*|Function} [value] The dependency definition
+   * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
+   *                                       properties of a BlisterContainer
+   * @return {BlisterContainer} The container itself
+   */
   extend: function(id, value, type) {
     if (!this._deps[id]) {
       throw new Error('Cannot extend a dependency not previously set: ' + id);
@@ -153,6 +177,19 @@ BlisterContainer.prototype = {
     return this._set(id, value, type, true);
   },
 
+  /**
+   * Internal dependency setter that adds extension support
+   *
+   * @private
+   * @param {string} id The dependency id
+   * @param {*|Function} [value] The dependency definition
+   * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
+   *                                       properties of a BlisterContainer
+   * @param {boolean} isExtension Determines if extends a previous dependency,
+   *                              so the original value is stored and passed to
+   *                              the new definition
+   * @return {BlisterContainer} The container itself
+   */
   _set: function(id, value, type, isExtension) {
     if (typeof id !== 'string') {
       throw new TypeError('The dependency id must be a string: ' + id);
@@ -177,7 +214,7 @@ BlisterContainer.prototype = {
         value);
     }
 
-    this._deps[id] = wrappers.wrap(type, value, this, originalWrapper);
+    this._deps[id] = wrappers.create(type, value, this, originalWrapper);
     return this;
   },
 
