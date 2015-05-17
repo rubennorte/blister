@@ -12,7 +12,7 @@ function createCounter() {
 
 describe('BlisterContainer', function() {
 
-  it('should be a class with the proper API', function() {
+  it('should be a class with API: get, set, register, extend and type constants', function() {
     expect(BlisterContainer).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.get).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.set).toEqual(jasmine.any(Function));
@@ -149,7 +149,7 @@ describe('BlisterContainer', function() {
 
     describe('when called multiple times with the same id', function() {
 
-      it('should overwrite previously set values', function() {
+      it('should overwrite the previous values', function() {
         var stored;
 
         container.set('id', 'foo', container.VALUE);
@@ -209,8 +209,7 @@ describe('BlisterContainer', function() {
       });
 
       it(
-        'should call the function with the original value and the container (also as context)',
-        function() {
+        'should call the function with the original value and the container', function() {
           container.set('id', 'value');
           var extensionDefinition = jasmine.createSpy('extensionDefinition');
           container.extend('id', extensionDefinition, container.FACTORY);
@@ -233,7 +232,7 @@ describe('BlisterContainer', function() {
 
       describe('when the original value was a singleton', function() {
 
-        it('should return the original value cached', function() {
+        it('should pass the original value cached', function() {
           container.set('id', createCounter());
 
           var newCounter = createCounter();
@@ -252,7 +251,7 @@ describe('BlisterContainer', function() {
 
       describe('when the original value was a factory', function() {
 
-        it('should return the original value cached', function() {
+        it('should pass the result of a new call each time', function() {
           container.set('id', createCounter(), container.FACTORY);
 
           var newCounter = createCounter();
@@ -280,18 +279,16 @@ describe('BlisterContainer', function() {
         }).toThrowError(TypeError);
       });
 
-      it(
-        'should call the function with the original value and the container (also as context)',
-        function() {
-          container.set('id', 'value');
-          var extensionDefinition = jasmine.createSpy('extensionDefinition');
-          container.extend('id', extensionDefinition, container.SINGLETON);
+      it('should call the function with the original value and the container', function() {
+        container.set('id', 'value');
+        var extensionDefinition = jasmine.createSpy('extensionDefinition');
+        container.extend('id', extensionDefinition, container.SINGLETON);
 
-          container.get('id');
+        container.get('id');
 
-          expect(extensionDefinition).toHaveBeenCalledWith(container, 'value');
-          expect(extensionDefinition.calls.first().object).toBe(container);
-        });
+        expect(extensionDefinition).toHaveBeenCalledWith(container, 'value');
+        expect(extensionDefinition.calls.first().object).toBe(container);
+      });
 
       it('should return the same cached result of the given function value', function() {
         container.set('singleton', createCounter(), container.SINGLETON);
