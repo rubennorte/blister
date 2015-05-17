@@ -87,6 +87,29 @@ container.get('timestamp'); 1431773272660
 container.get('timestamp'); 1431773281953
 ```
 
+#### Extending dependencies
+
+Dependencies already defined in the container can be modified or extended. That functionality can be useful, for example, to add plugins to a service.
+
+If both the extension and the original definitions were functions, the extension inherits the type of dependency (SINGLETON or FACTORY) by default.
+
+Example:
+
+```js
+container.set('some-service', function() {
+  return service;
+});
+
+// after that definition
+container.extend('some-service', function(c, service) {
+  service.addLogger(c.get('logger'));
+});
+
+container.get('service'); //> singleton service with logger
+```
+
+If the previous dependency is not used in the definition of the extension, it can be replaced using `set` instead.
+
 #### Registering service providers
 
 Service providers can be used to help organizing the registration of dependencies. A service provider is any object implementing a `register` method.
