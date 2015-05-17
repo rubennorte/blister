@@ -141,7 +141,7 @@ npm run doc
 To run the tests of the project, clone the repository and execute:
 
 ```bash
-npm instal && npm test
+npm install && npm test
 ```
 
 ## Contribute
