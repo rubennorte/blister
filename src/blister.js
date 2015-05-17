@@ -3,13 +3,17 @@
 var wrappers = require('./wrappers');
 
 /**
+ * @name BlisterDependencyType
  * @enum {string}
+ *
+ * @property {string} VALUE
+ * @property {string} SINGLETON
+ * @property {string} FACTORY
  */
-var blisterDependencyType = {
-  VALUE: 'VALUE',
-  SINGLETON: 'SINGLETON',
-  FACTORY: 'FACTORY'
-};
+
+var VALUE = 'VALUE';
+var SINGLETON = 'SINGLETON';
+var FACTORY = 'FACTORY';
 
 /**
  * Dependency injection container constructor
@@ -36,7 +40,7 @@ BlisterContainer.prototype = {
    *
    * @constant {string}
    */
-  VALUE: blisterDependencyTypes.VALUE,
+  VALUE: VALUE,
 
   /**
    * Type for SINGLETON dependencies.
@@ -44,14 +48,14 @@ BlisterContainer.prototype = {
    *
    * @constant {string}
    */
-  SINGLETON: blisterDependencyTypes.SINGLETON,
+  SINGLETON: SINGLETON,
 
   /**
    * Type for FACTORY dependencies
    *
    * @constant {string}
    */
-  FACTORY: blisterDependencyTypes.FACTORY,
+  FACTORY: FACTORY,
 
   /**
    * Returns the dependency set with the given id,
@@ -79,7 +83,7 @@ BlisterContainer.prototype = {
    *
    * @param {string} id The dependency id
    * @param {*|Function} [value] The dependency definition
-   * @param {blisterDependencyType} [type] VALUE, SINGLETON or FACTORY
+   * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
    *                                       properties
    * @return {BlisterContainer} The container itself
    */
@@ -95,7 +99,7 @@ BlisterContainer.prototype = {
    *
    * @param {string} id The dependency id
    * @param {*|Function} [value] The dependency definition
-   * @param {blisterDependencyType} [type] VALUE, SINGLETON or FACTORY
+   * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
    *                                       properties
    * @return {BlisterContainer} The container itself
    */
@@ -113,7 +117,7 @@ BlisterContainer.prototype = {
    * @private
    * @param {string} id The dependency id
    * @param {*|Function} [value] The dependency definition
-   * @param {blisterDependencyType} [type] VALUE, SINGLETON or FACTORY
+   * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
    *                                       properties
    * @param {boolean} isExtension Determines if extends a previous dependency,
    *                              so the original value is stored and passed to
