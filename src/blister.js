@@ -65,7 +65,7 @@ BlisterContainer.prototype = {
    */
   get: function(id) {
     var wrapper = this._deps[id];
-    return wrapper && wrapper(this);
+    return wrapper && wrapper();
   },
 
   /**
