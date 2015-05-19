@@ -66,13 +66,14 @@ describe('BlisterContainer', function() {
         }).toThrowError(TypeError);
       });
 
-      it('should call the function with the container as parameter and context', function() {
-        var singletonSpy = jasmine.createSpy('singletonSpy');
-        container.set('singleton', singletonSpy, container.SINGLETON);
-        container.get('singleton');
-        expect(singletonSpy).toHaveBeenCalledWith(container, undefined);
-        expect(singletonSpy.calls.first().object).toBe(container);
-      });
+      it('should call the function with the container as parameter and context',
+        function() {
+          var singletonSpy = jasmine.createSpy('singletonSpy');
+          container.set('singleton', singletonSpy, container.SINGLETON);
+          container.get('singleton');
+          expect(singletonSpy).toHaveBeenCalledWith(container, undefined);
+          expect(singletonSpy.calls.first().object).toBe(container);
+        });
 
       it('should return the result of the given function value for each call', function() {
         container.set('factory', createCounter(), container.FACTORY);
@@ -93,13 +94,14 @@ describe('BlisterContainer', function() {
         }).toThrowError(TypeError);
       });
 
-      it('should call the function with the container as parameter and context', function() {
-        var singletonSpy = jasmine.createSpy('singletonSpy');
-        container.set('singleton', singletonSpy, container.SINGLETON);
-        container.get('singleton');
-        expect(singletonSpy).toHaveBeenCalledWith(container, undefined);
-        expect(singletonSpy.calls.first().object).toBe(container);
-      });
+      it('should call the function with the container as parameter and context',
+        function() {
+          var singletonSpy = jasmine.createSpy('singletonSpy');
+          container.set('singleton', singletonSpy, container.SINGLETON);
+          container.get('singleton');
+          expect(singletonSpy).toHaveBeenCalledWith(container, undefined);
+          expect(singletonSpy.calls.first().object).toBe(container);
+        });
 
       it('should return the same cached result of the given function value', function() {
         container.set('singleton', createCounter(), container.SINGLETON);
@@ -209,7 +211,8 @@ describe('BlisterContainer', function() {
       });
 
       it(
-        'should call the function with the original value and the container', function() {
+        'should call the function with the original value and the container',
+        function() {
           container.set('id', 'value');
           var extensionDefinition = jasmine.createSpy('extensionDefinition');
           container.extend('id', extensionDefinition, container.FACTORY);
@@ -306,22 +309,41 @@ describe('BlisterContainer', function() {
 
       describe('when the value is a function', function() {
 
-        it('should save it with the same type of the original value', function() {
-          container.set('singleton', createCounter(), container.SINGLETON);
-          container.extend('singleton', createCounter());
+        describe('when the original value had type value', function() {
 
-          var first = container.get('singleton');
-          var second = container.get('singleton');
-          expect(first).toBe(1);
-          expect(second).toBe(1);
+          it('should save is as a singleton', function() {
+            container.set('id', 'value');
+            container.extend('id', createCounter());
 
-          container.set('factory', createCounter(), container.FACTORY);
-          container.extend('factory', createCounter());
+            var first = container.get('id');
+            var second = container.get('id');
+            expect(first).toBe(1);
+            expect(second).toBe(1);
+          });
 
-          first = container.get('factory');
-          second = container.get('factory');
-          expect(first).toBe(1);
-          expect(second).toBe(2);
+        });
+
+        describe('otherwise', function() {
+
+          it('should save it with the same type of the original value',
+            function() {
+              container.set('singleton', createCounter(), container.SINGLETON);
+              container.extend('singleton', createCounter());
+
+              var first = container.get('singleton');
+              var second = container.get('singleton');
+              expect(first).toBe(1);
+              expect(second).toBe(1);
+
+              container.set('factory', createCounter(), container.FACTORY);
+              container.extend('factory', createCounter());
+
+              first = container.get('factory');
+              second = container.get('factory');
+              expect(first).toBe(1);
+              expect(second).toBe(2);
+            });
+
         });
 
       });
