@@ -66,14 +66,13 @@ describe('BlisterContainer', function() {
         }).toThrowError(TypeError);
       });
 
-      it('should call the function with the container as parameter and context',
-        function() {
-          var singletonSpy = jasmine.createSpy('singletonSpy');
-          container.set('singleton', singletonSpy, container.SINGLETON);
-          container.get('singleton');
-          expect(singletonSpy).toHaveBeenCalledWith(container, undefined);
-          expect(singletonSpy.calls.first().object).toBe(container);
-        });
+      it('should call the function with the container as parameter and context', function() {
+        var singletonSpy = jasmine.createSpy('singletonSpy');
+        container.set('singleton', singletonSpy, container.SINGLETON);
+        container.get('singleton');
+        expect(singletonSpy).toHaveBeenCalledWith(container, undefined);
+        expect(singletonSpy.calls.first().object).toBe(container);
+      });
 
       it('should return the result of the given function value for each call', function() {
         container.set('factory', createCounter(), container.FACTORY);
@@ -94,14 +93,13 @@ describe('BlisterContainer', function() {
         }).toThrowError(TypeError);
       });
 
-      it('should call the function with the container as parameter and context',
-        function() {
-          var singletonSpy = jasmine.createSpy('singletonSpy');
-          container.set('singleton', singletonSpy, container.SINGLETON);
-          container.get('singleton');
-          expect(singletonSpy).toHaveBeenCalledWith(container, undefined);
-          expect(singletonSpy.calls.first().object).toBe(container);
-        });
+      it('should call the function with the container as parameter and context', function() {
+        var singletonSpy = jasmine.createSpy('singletonSpy');
+        container.set('singleton', singletonSpy, container.SINGLETON);
+        container.get('singleton');
+        expect(singletonSpy).toHaveBeenCalledWith(container, undefined);
+        expect(singletonSpy.calls.first().object).toBe(container);
+      });
 
       it('should return the same cached result of the given function value', function() {
         container.set('singleton', createCounter(), container.SINGLETON);
@@ -210,18 +208,16 @@ describe('BlisterContainer', function() {
         }).toThrowError(TypeError);
       });
 
-      it(
-        'should call the function with the original value and the container',
-        function() {
-          container.set('id', 'value');
-          var extensionDefinition = jasmine.createSpy('extensionDefinition');
-          container.extend('id', extensionDefinition, container.FACTORY);
+      it('should call the function with the original value and the container', function() {
+        container.set('id', 'value');
+        var extensionDefinition = jasmine.createSpy('extensionDefinition');
+        container.extend('id', extensionDefinition, container.FACTORY);
 
-          container.get('id');
+        container.get('id');
 
-          expect(extensionDefinition).toHaveBeenCalledWith(container, 'value');
-          expect(extensionDefinition.calls.first().object).toBe(container);
-        });
+        expect(extensionDefinition).toHaveBeenCalledWith(container, 'value');
+        expect(extensionDefinition.calls.first().object).toBe(container);
+      });
 
       it('should return the result of the given function value for each call', function() {
         container.set('id', 'value');
@@ -325,24 +321,23 @@ describe('BlisterContainer', function() {
 
         describe('otherwise', function() {
 
-          it('should save it with the same type of the original value',
-            function() {
-              container.set('singleton', createCounter(), container.SINGLETON);
-              container.extend('singleton', createCounter());
+          it('should save it with the same type of the original value', function() {
+            container.set('singleton', createCounter(), container.SINGLETON);
+            container.extend('singleton', createCounter());
 
-              var first = container.get('singleton');
-              var second = container.get('singleton');
-              expect(first).toBe(1);
-              expect(second).toBe(1);
+            var first = container.get('singleton');
+            var second = container.get('singleton');
+            expect(first).toBe(1);
+            expect(second).toBe(1);
 
-              container.set('factory', createCounter(), container.FACTORY);
-              container.extend('factory', createCounter());
+            container.set('factory', createCounter(), container.FACTORY);
+            container.extend('factory', createCounter());
 
-              first = container.get('factory');
-              second = container.get('factory');
-              expect(first).toBe(1);
-              expect(second).toBe(2);
-            });
+            first = container.get('factory');
+            second = container.get('factory');
+            expect(first).toBe(1);
+            expect(second).toBe(2);
+          });
 
         });
 
@@ -376,16 +371,15 @@ describe('BlisterContainer', function() {
       expect(returnValue).toBe(container);
     });
 
-    it('should throw an error if the given parameter does not have a register method',
-      function() {
-        expect(function() {
-          container.register(5);
-        }).toThrowError(TypeError);
+    it('should throw an error if the given parameter does not have a register method', function() {
+      expect(function() {
+        container.register(5);
+      }).toThrowError(TypeError);
 
-        expect(function() {
-          container.register({});
-        }).toThrowError(TypeError);
-      });
+      expect(function() {
+        container.register({});
+      }).toThrowError(TypeError);
+    });
 
   });
 
