@@ -130,13 +130,14 @@ BlisterContainer.prototype = {
     }
 
     var originalWrapper = isExtension ? this._deps[id] : undefined;
+    var originalType = originalWrapper && originalWrapper.type;
 
     var typeOfValue = typeof value;
     if (!type) {
       if (typeOfValue !== 'function') {
         type = VALUE;
-      } else if (isExtension) {
-        type = originalWrapper.type;
+      } else if (isExtension && originalType !== VALUE) {
+        type = originalType;
       } else {
         type = SINGLETON;
       }
