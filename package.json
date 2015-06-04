@@ -11,7 +11,12 @@
     "container",
     "di",
     "pimple",
-    "provider"
+    "provider",
+    "singleton",
+    "factory",
+    "configuration",
+    "config",
+    "IoC"
   ],
   "homepage": "https://github.com/rubennorte/blister",
   "bugs": {
