@@ -1,10 +1,10 @@
 # Blister
 
-Minimalist dependency injection container for JavaScript, inspired by Fabien Potencier's [Pimple](http://pimple.sensiolabs.org/).
+Minimalist dependency injection container for JavaScript.
 
 ## Installation
 
-The package is available as a UMD module: compatible with AMD, CommonJS and exposing a global variable `Blister` in `dist/blister.min.js` (910 bytes minified and gzipped).
+The package is available as a UMD module: compatible with AMD, CommonJS and exposing a global variable `Blister` in `dist/blister.min.js` (1.2 KB minified and gzipped).
 
 It can be installed via npm (for both Node.js and browserify/webpack), Bower or downloading it from the repository:
 
@@ -47,10 +47,10 @@ If the dependency is not a function, the parameter is optional.
 Example:
 
 ```js
-container.set('protocol', 'http://' /*, container.VALUE */);
+container.value('protocol', 'http://');
 container.get('protocol'); //> 'http://'
 
-container.set('randomFn', Math.random, container.VALUE);
+container.value('randomFn', Math.random);
 container.get('randomFn'); //> function random() { [native code] }
 ```
 
@@ -58,16 +58,14 @@ container.get('randomFn'); //> function random() { [native code] }
 
 Dependencies can be registered as a singleton functions. Those functions are executed the first time the associated dependency is requested. The result of the functions is returned and cached for subsequent calls.
 
-All the dependencies specified as functions are singletons by default.
-
 Example:
 
 ```js
-container.set('host', function(c) {
+container.singleton('host', function(c) {
   console.log('called');
   return c.get('protocol') === 'http://' ?
     'example.com' : 'secure.example.com';
-} /*, container.SINGLETON */);
+});
 container.get('host'); //> 'example.com'
 // called
 container.get('host'); //> 'example.com'
@@ -80,9 +78,9 @@ Dependencies can also be registered as factory functions. Those functions are ex
 Example:
 
 ```js
-container.set('timestamp', function() {
+container.factory('timestamp', function() {
   return Date.now();
-}, container.FACTORY);
+});
 container.get('timestamp'); 1431773272660
 container.get('timestamp'); 1431773281953
 ```
@@ -91,12 +89,14 @@ container.get('timestamp'); 1431773281953
 
 Dependencies already defined in the container can be modified or extended. That functionality can be useful, for example, to add plugins to a service.
 
-If both the extension and the original definitions were functions, the extension inherits the type of dependency (SINGLETON or FACTORY) by default.
+The extension preserves the type of the original dependency (factory or singleton).
+
+Value dependencies cannot be extended. They must be redefined instead.
 
 Example:
 
 ```js
-container.set('some-service', function() {
+container.singleton('some-service', function() {
   return service;
 });
 
@@ -108,7 +108,7 @@ container.extend('some-service', function(c, service) {
 container.get('service'); //> singleton service with logger
 ```
 
-If the previous dependency is not used in the definition of the extension, it can be replaced using `set` instead.
+If the previous dependency is not used in the definition of the extension, it can be replaced using `value`, `factory` or `singleton` instead.
 
 #### Registering service providers
 
