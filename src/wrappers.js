@@ -28,8 +28,10 @@ var wrappers = {
    */
   FACTORY: function wrapFactory(value, container, originalWrapper) {
     return function() {
-      var originalValue = originalWrapper && originalWrapper();
-      return value.call(container, container, originalValue);
+      if (originalWrapper) {
+        return value.call(container, container, originalWrapper());
+      }
+      return value.call(container, container);
     };
   },
 
@@ -44,11 +46,13 @@ var wrappers = {
     var cached = false;
     var cachedValue;
     return function() {
-      var originalValue;
       if (!cached) {
         cached = true;
-        originalValue = originalWrapper && originalWrapper();
-        cachedValue = value.call(container, container, originalValue);
+        if (originalWrapper) {
+          cachedValue = value.call(container, container, originalWrapper());
+        } else {
+          cachedValue = value.call(container, container);
+        }
         value = null;
       }
       return cachedValue;
