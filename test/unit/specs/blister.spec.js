@@ -12,9 +12,9 @@ function createCounter() {
 
 describe('BlisterContainer', function() {
 
-  it('should be a class with API: get, value, factory, singleton, extend, register and error types', function() {
+  it('should be a class with the proper API', function() {
     expect(BlisterContainer).toEqual(jasmine.any(Function));
-    
+
     expect(BlisterContainer.prototype.get).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.value).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.factory).toEqual(jasmine.any(Function));

@@ -6,9 +6,9 @@ var errors = require('./errors');
 var IllegalExtensionError = errors.IllegalExtensionError;
 var MissingExtendedDependencyError = errors.MissingExtendedDependencyError;
 
-var VALUE = 'VALUE';
-var SINGLETON = 'SINGLETON';
-var FACTORY = 'FACTORY';
+var VALUE = 'value';
+var SINGLETON = 'singleton';
+var FACTORY = 'factory';
 
 /**
  * Dependency injection container constructor

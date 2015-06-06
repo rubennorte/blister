@@ -9,24 +9,24 @@
 var wrappers = {
 
   /**
-   * Returns a wrapper for a VALUE dependency to be stored in the container
+   * Returns a wrapper for a value dependency to be stored in the container
    * @param {*} value
    * @return {Function}
    */
-  VALUE: function wrapValue(value) {
+  value: function wrapValue(value) {
     return function() {
       return value;
     };
   },
 
   /**
-   * Returns a wrapper for a FACTORY dependency to be stored in the container
+   * Returns a wrapper for a factory dependency to be stored in the container
    * @param {Function} value The factory function
    * @param {BlisterContainer} container
    * @param {Function} [originalWrapper]
    * @return {Function}
    */
-  FACTORY: function wrapFactory(value, container, originalWrapper) {
+  factory: function wrapFactory(value, container, originalWrapper) {
     return function() {
       if (originalWrapper) {
         return value.call(container, container, originalWrapper());
@@ -36,13 +36,13 @@ var wrappers = {
   },
 
   /**
-   * Returns a wrapper for a SINGLETON dependency to be stored in the container
+   * Returns a wrapper for a singleton dependency to be stored in the container
    * @param {Function} value The singleton generator function
    * @param {BlisterContainer} container
    * @param {Function} [originalWrapper]
    * @return {Function}
    */
-  SINGLETON: function wrapSingleton(value, container, originalWrapper) {
+  singleton: function wrapSingleton(value, container, originalWrapper) {
     var cached = false;
     var cachedValue;
     return function() {
