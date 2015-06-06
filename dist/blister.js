@@ -2,26 +2,21 @@
 'use strict';
 
 var wrappers = require('./wrappers');
+var errors = require('./errors');
 
-/**
- * @name BlisterDependencyType
- * @enum {string}
- *
- * @property {string} VALUE
- * @property {string} SINGLETON
- * @property {string} FACTORY
- */
+var IllegalExtensionError = errors.IllegalExtensionError;
+var MissingExtendedDependencyError = errors.MissingExtendedDependencyError;
 
-var VALUE = 'VALUE';
-var SINGLETON = 'SINGLETON';
-var FACTORY = 'FACTORY';
+var VALUE = 'value';
+var SINGLETON = 'singleton';
+var FACTORY = 'factory';
 
 /**
  * Dependency injection container constructor
  *
  * @example
  * var container = new BlisterContainer();
- * container.set('id', 'value');
+ * container.value('id', 'value');
  * container.get('id'); //> 'value';
  *
  * @class
@@ -30,33 +25,12 @@ function BlisterContainer() {
   this._deps = {};
 }
 
+BlisterContainer.IllegalExtensionError = IllegalExtensionError;
+BlisterContainer.MissingExtendedDependencyError = MissingExtendedDependencyError;
+
 BlisterContainer.prototype = {
 
   constructor: BlisterContainer,
-
-  /**
-   * Type for VALUE dependencies.
-   * It is the default type for dependencies specified as primitives: strings,
-   * numbers, booleans, etc.
-   *
-   * @constant {string}
-   */
-  VALUE: VALUE,
-
-  /**
-   * Type for SINGLETON dependencies.
-   * It is the default type for dependencies specified as functions
-   *
-   * @constant {string}
-   */
-  SINGLETON: SINGLETON,
-
-  /**
-   * Type for FACTORY dependencies
-   *
-   * @constant {string}
-   */
-  FACTORY: FACTORY,
 
   /**
    * Returns the dependency set with the given id,
@@ -70,46 +44,55 @@ BlisterContainer.prototype = {
   },
 
   /**
-   * Registers the specified dependency in the container with the given type.
-   *
-   * If no type is passed, the default is SINGLETON for functions and
-   * VALUE for others.
-   * If the type is VALUE, the given value is returned each time the dependency
-   * is requested.
-   * If the type is SINGLETON, the given function will be called the first time
-   * the dependency is requested. The value is returned and cached for the
-   * subsequent calls.
-   * If the type is FACTORY, the given function is called each time the
-   * dependency is requested.
-   *
-   * @param {string} id The dependency id
-   * @param {*|Function} [value] The dependency definition
-   * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
-   *                                       properties
-   * @return {BlisterContainer} The container itself
+   * Registers the given value with the specified id
+   * @param  {string} id
+   * @param  {*} value
+   * @return {BlisterContainer} this
+   * @throws {TypeError} If id is not a string
    */
-  set: function(id, value, type) {
-    return this._set(id, value, type);
+  value: function(id, value) {
+    return this._set(id, value, VALUE, false);
   },
 
   /**
-   * Extends the specified dependency in the container with the given type.
-   *
-   * If no type is passed, inherits the original type if it is a function or
-   * it is defined as VALUE otherwise.
-   *
-   * @param {string} id The dependency id
-   * @param {*|Function} [value] The dependency definition
-   * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
-   *                                       properties
-   * @return {BlisterContainer} The container itself
+   * Registers the given factory function with the specified id
+   * @param  {string} id
+   * @param  {Function} factoryFn
+   * @return {BlisterContainer} this
+   * @throws {TypeError} If id is not a string
+   * @throws {TypeError} If factoryFn is not a function
    */
-  extend: function(id, value, type) {
-    if (!this._deps[id]) {
-      throw new Error('Cannot extend a dependency not previously set: ' + id);
-    }
+  factory: function(id, factoryFn) {
+    return this._set(id, factoryFn, FACTORY, false);
+  },
 
-    return this._set(id, value, type, true);
+  /**
+   * Registers the given singleton function with the specified id
+   * @param  {string} id
+   * @param  {Function} singletonFn
+   * @return {BlisterContainer} this
+   * @throws {TypeError} If id is not a string
+   * @throws {TypeError} If singletonFn is not a function
+   */
+  singleton: function(id, singletonFn) {
+    return this._set(id, singletonFn, SINGLETON, false);
+  },
+
+  /**
+   * Extends a previously defined dependency with the same type:
+   * factory or singleton
+   * @param  {string} id
+   * @param  {Function} definition
+   * @return {BlisterContainer} this
+   * @throws {TypeError} If id is not a string
+   * @throws {TypeError} If definition is not a function
+   * @throws {MissingExtendedDependencyError} If there was not a previously
+   *         defined dependency with that id
+   * @throws {IllegalExtensionError} If trying to extend a dependency
+   *         registered as value
+   */
+  extend: function(id, definition) {
+    return this._set(id, definition, undefined, true);
   },
 
   /**
@@ -117,9 +100,8 @@ BlisterContainer.prototype = {
    *
    * @private
    * @param {string} id The dependency id
-   * @param {*|Function} [value] The dependency definition
-   * @param {BlisterDependencyType} [type] VALUE, SINGLETON or FACTORY
-   *                                       properties
+   * @param {*|Function} value The dependency definition
+   * @param {string} 'VALUE', 'SINGLETON' or 'FACTORY'
    * @param {boolean} isExtension Determines if extends a previous dependency,
    *                              so the original value is stored and passed to
    *                              the new definition
@@ -131,23 +113,21 @@ BlisterContainer.prototype = {
     }
 
     var originalWrapper = isExtension ? this._deps[id] : undefined;
-    var originalType = originalWrapper && originalWrapper.type;
-
-    var typeOfValue = typeof value;
-    if (!type) {
-      if (typeOfValue !== 'function') {
-        type = VALUE;
-      } else if (isExtension && originalType !== VALUE) {
-        type = originalType;
-      } else {
-        type = SINGLETON;
+    if (isExtension) {
+      if (!originalWrapper) {
+        throw new MissingExtendedDependencyError();
       }
+      type = originalWrapper.type;
     }
 
-    if (typeOfValue !== 'function' && type !== VALUE) {
+    if (typeof value !== 'function' && type !== VALUE) {
       throw new TypeError(
-        'The value must be a function for types SINGLETON and FACTORY: ' +
+        'The argument must be a function: ' +
         value);
+    }
+
+    if (type === VALUE && isExtension) {
+      throw new IllegalExtensionError();
     }
 
     this._deps[id] = wrappers.create(type, value, this, originalWrapper);
@@ -195,7 +175,52 @@ BlisterContainer.prototype = {
 
 module.exports = BlisterContainer;
 
-},{"./wrappers":2}],2:[function(require,module,exports){
+},{"./errors":2,"./wrappers":3}],2:[function(require,module,exports){
+'use strict';
+
+/**
+ * Wrapper just to create new subclasses of Error without
+ * executing its constructor (ES3-compatible)
+ * @class
+ * @private
+ */
+function ErrorWrapper() {}
+ErrorWrapper.prototype = Error.prototype;
+
+/**
+ * @class
+ * @extends {Error}
+ * @param {string} [message='Values cannot be extended. Redefine them instead']
+ * @private
+ */
+function IllegalExtensionError(message) {
+  this.name = 'IllegalExtensionError';
+  this.message = message || 'Values cannot be extended. Redefine them instead';
+}
+
+IllegalExtensionError.prototype = new ErrorWrapper();
+IllegalExtensionError.constructor = IllegalExtensionError;
+
+/**
+ * @class
+ * @extends {Error}
+ * @param {string} [message='Cannot extend a dependency not previously set']
+ * @private
+ */
+function MissingExtendedDependencyError(message) {
+  this.name = 'MissingExtendedDependencyError';
+  this.message = message || 'Cannot extend a dependency not previously set';
+}
+
+MissingExtendedDependencyError.prototype = new ErrorWrapper();
+MissingExtendedDependencyError.constructor = MissingExtendedDependencyError;
+
+module.exports = {
+  IllegalExtensionError: IllegalExtensionError,
+  MissingExtendedDependencyError: MissingExtendedDependencyError
+};
+
+},{}],3:[function(require,module,exports){
 'use strict';
 
 /**
@@ -207,46 +232,50 @@ module.exports = BlisterContainer;
 var wrappers = {
 
   /**
-   * Returns a wrapper for a VALUE dependency to be stored in the container
+   * Returns a wrapper for a value dependency to be stored in the container
    * @param {*} value
    * @return {Function}
    */
-  VALUE: function wrapValue(value) {
+  value: function wrapValue(value) {
     return function() {
       return value;
     };
   },
 
   /**
-   * Returns a wrapper for a FACTORY dependency to be stored in the container
+   * Returns a wrapper for a factory dependency to be stored in the container
    * @param {Function} value The factory function
    * @param {BlisterContainer} container
    * @param {Function} [originalWrapper]
    * @return {Function}
    */
-  FACTORY: function wrapFactory(value, container, originalWrapper) {
+  factory: function wrapFactory(value, container, originalWrapper) {
     return function() {
-      var originalValue = originalWrapper && originalWrapper();
-      return value.call(container, container, originalValue);
+      if (originalWrapper) {
+        return value.call(container, container, originalWrapper());
+      }
+      return value.call(container, container);
     };
   },
 
   /**
-   * Returns a wrapper for a SINGLETON dependency to be stored in the container
+   * Returns a wrapper for a singleton dependency to be stored in the container
    * @param {Function} value The singleton generator function
    * @param {BlisterContainer} container
    * @param {Function} [originalWrapper]
    * @return {Function}
    */
-  SINGLETON: function wrapSingleton(value, container, originalWrapper) {
+  singleton: function wrapSingleton(value, container, originalWrapper) {
     var cached = false;
     var cachedValue;
     return function() {
-      var originalValue;
       if (!cached) {
         cached = true;
-        originalValue = originalWrapper && originalWrapper();
-        cachedValue = value.call(container, container, originalValue);
+        if (originalWrapper) {
+          cachedValue = value.call(container, container, originalWrapper());
+        } else {
+          cachedValue = value.call(container, container);
+        }
         value = null;
       }
       return cachedValue;
