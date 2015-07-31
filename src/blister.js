@@ -105,6 +105,13 @@ BlisterContainer.prototype = {
    *                              so the original value is stored and passed to
    *                              the new definition
    * @return {BlisterContainer} The container itself
+   * @throws {TypeError} If the id is not a string
+   * @throws {TypeError} If value is not a function when the type is
+   *         'SINGLETON' or 'FACTORY'
+   * @throws {MissingExtendedDependencyError} When trying to extend an
+   *         unregistered dependency
+   * @throws {IllegalExtensionError} When trying to extend a value dependency.
+   *         It must be redefined instead.
    */
   _set: function(id, value, type, isExtension) {
     if (typeof id !== 'string') {
