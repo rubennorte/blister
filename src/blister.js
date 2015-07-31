@@ -4,11 +4,36 @@ var wrappers = require('./wrappers');
 var errors = require('./errors');
 
 var IllegalExtensionError = errors.IllegalExtensionError;
-var MissingExtendedDependencyError = errors.MissingExtendedDependencyError;
+var UnregisteredDependencyError = errors.UnregisteredDependencyError;
+var UnregisteredExtendedDependencyError = errors.UnregisteredExtendedDependencyError;
 
 var VALUE = 'value';
 var SINGLETON = 'singleton';
 var FACTORY = 'factory';
+
+var objectHasProp = Object.prototype.hasOwnProperty;
+
+/**
+ * Indicates if the given object has the given propery name as own
+ * @private
+ * @param  {Object} object
+ * @param  {string} name
+ * @return {boolean}
+ */
+function hasOwnProp(obj, name) {
+  return objectHasProp.call(obj, name);
+}
+
+/**
+ * @private
+ * @param  {*} id
+ * @throws {TypeError} If the passed id is not a string
+ */
+function checkId(id) {
+  if (typeof id !== 'string') {
+    throw new TypeError('The dependency id must be a string: ' + id);
+  }
+}
 
 /**
  * Dependency injection container constructor
@@ -25,11 +50,24 @@ function BlisterContainer() {
 }
 
 BlisterContainer.IllegalExtensionError = IllegalExtensionError;
-BlisterContainer.MissingExtendedDependencyError = MissingExtendedDependencyError;
+BlisterContainer.UnregisteredDependencyError = UnregisteredDependencyError;
+BlisterContainer.UnregisteredExtendedDependencyError = UnregisteredExtendedDependencyError;
 
 BlisterContainer.prototype = {
 
   constructor: BlisterContainer,
+
+  /**
+   * Indicates if there is a registered dependency with the given id
+   * @param  {string} id
+   * @return {boolean}
+   * @throws {TypeError} If the id is not a string
+   */
+  has: function(id) {
+    checkId(id);
+
+    return hasOwnProp(this._deps, id);
+  },
 
   /**
    * Returns the dependency set with the given id,
@@ -38,8 +76,13 @@ BlisterContainer.prototype = {
    * @return {*}
    */
   get: function(id) {
-    var wrapper = this._deps[id];
-    return wrapper && wrapper();
+    checkId(id);
+
+    if (!hasOwnProp(this._deps, id)) {
+      throw new UnregisteredDependencyError('Cannot get unregistered dependency ' + id);
+    }
+
+    return this._deps[id]();
   },
 
   /**
@@ -85,7 +128,7 @@ BlisterContainer.prototype = {
    * @return {BlisterContainer} this
    * @throws {TypeError} If id is not a string
    * @throws {TypeError} If definition is not a function
-   * @throws {MissingExtendedDependencyError} If there was not a previously
+   * @throws {UnregisteredExtendedDependencyError} If there was not a previously
    *         defined dependency with that id
    * @throws {IllegalExtensionError} If trying to extend a dependency
    *         registered as value
@@ -108,20 +151,18 @@ BlisterContainer.prototype = {
    * @throws {TypeError} If the id is not a string
    * @throws {TypeError} If value is not a function when the type is
    *         'SINGLETON' or 'FACTORY'
-   * @throws {MissingExtendedDependencyError} When trying to extend an
+   * @throws {UnregisteredExtendedDependencyError} When trying to extend an
    *         unregistered dependency
    * @throws {IllegalExtensionError} When trying to extend a value dependency.
    *         It must be redefined instead.
    */
   _set: function(id, value, type, isExtension) {
-    if (typeof id !== 'string') {
-      throw new TypeError('The dependency id must be a string: ' + id);
-    }
+    checkId(id);
 
     var originalWrapper = isExtension ? this._deps[id] : undefined;
     if (isExtension) {
       if (!originalWrapper) {
-        throw new MissingExtendedDependencyError();
+        throw new UnregisteredExtendedDependencyError();
       }
       type = originalWrapper.type;
     }

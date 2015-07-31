@@ -16,6 +16,7 @@ describe('BlisterContainer', function() {
     expect(BlisterContainer).toEqual(jasmine.any(Function));
 
     expect(BlisterContainer.prototype.get).toEqual(jasmine.any(Function));
+    expect(BlisterContainer.prototype.has).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.value).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.factory).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.service).toEqual(jasmine.any(Function));
@@ -23,12 +24,68 @@ describe('BlisterContainer', function() {
     expect(BlisterContainer.prototype.extend).toEqual(jasmine.any(Function));
 
     expect(BlisterContainer.IllegalExtensionError).toEqual(jasmine.any(Function));
-    expect(BlisterContainer.MissingExtendedDependencyError).toEqual(jasmine.any(Function));
+    expect(BlisterContainer.UnregisteredExtendedDependencyError).toEqual(jasmine.any(Function));
+    expect(BlisterContainer.UnregisteredDependencyError).toEqual(jasmine.any(Function));
   });
 
   var container;
   beforeEach(function() {
     container = new BlisterContainer();
+  });
+
+  describe('#get(id)', function() {
+
+    describe('when the id is not a string', function() {
+
+      it('should throw a type error', function() {
+        expect(function() {
+          container.get(5);
+        }).toThrowError(TypeError);
+      });
+
+    });
+
+    describe('when the id does not reference a registered dependency', function() {
+
+      it('should throw an error', function() {
+        expect(function() {
+          container.get('id');
+        }).toThrowError(BlisterContainer.UnregisteredDependencyError);
+      });
+
+    });
+
+  });
+
+  describe('#has(id)', function() {
+
+    describe('when there is a dependency with the given id', function() {
+
+      it('should return true', function() {
+        container.value('id', 'value');
+        expect(container.has('id')).toBe(true);
+      });
+
+    });
+
+    describe('when there is no dependency with the given id', function() {
+
+      it('should return false', function() {
+        expect(container.has('id')).toBe(false);
+      });
+
+    });
+
+    describe('when the given id is not a string', function() {
+
+      it('should throw a type error', function() {
+        expect(function() {
+          container.has(5);
+        }).toThrowError(TypeError);
+      });
+
+    });
+
   });
 
   describe('#value(id, argument)', function() {
@@ -188,10 +245,10 @@ describe('BlisterContainer', function() {
     it('should throw an error if the dependency is not already registered', function() {
       expect(function() {
         container.extend('id', function() {});
-      }).toThrowError(BlisterContainer.MissingExtendedDependencyError);
+      }).toThrowError(BlisterContainer.UnregisteredExtendedDependencyError);
       expect(function() {
         container.extend('id', 'foo');
-      }).toThrowError(BlisterContainer.MissingExtendedDependencyError);
+      }).toThrowError(BlisterContainer.UnregisteredExtendedDependencyError);
     });
 
     describe('when extending a value', function() {

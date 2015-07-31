@@ -38,6 +38,17 @@ require(['blister'], function(Blister) {
 var container = new Blister();
 ```
 
+#### Getting dependencies
+
+Example:
+
+```js
+container.value('name', 'Robert');
+
+container.get('name'); //> 'Robert'
+container.has('name'); //> true
+```
+
 #### Setting values
 
 Raw values can be stored in the container. The registered parameters is what the container returns when the dependency is requested.

@@ -26,18 +26,33 @@ IllegalExtensionError.constructor = IllegalExtensionError;
 /**
  * @class
  * @extends {Error}
+ * @param {string} [message='Cannot get an unregistered dependency']
+ * @private
+ */
+function UnregisteredDependencyError(message) {
+  this.name = 'UnregisteredDependencyError';
+  this.message = message || 'Cannot get an unregistered dependency';
+}
+
+UnregisteredDependencyError.prototype = new ErrorWrapper();
+UnregisteredDependencyError.constructor = UnregisteredDependencyError;
+
+/**
+ * @class
+ * @extends {Error}
  * @param {string} [message='Cannot extend a dependency not previously set']
  * @private
  */
-function MissingExtendedDependencyError(message) {
-  this.name = 'MissingExtendedDependencyError';
+function UnregisteredExtendedDependencyError(message) {
+  this.name = 'UnregisteredExtendedDependencyError';
   this.message = message || 'Cannot extend a dependency not previously set';
 }
 
-MissingExtendedDependencyError.prototype = new ErrorWrapper();
-MissingExtendedDependencyError.constructor = MissingExtendedDependencyError;
+UnregisteredExtendedDependencyError.prototype = new ErrorWrapper();
+UnregisteredExtendedDependencyError.constructor = UnregisteredExtendedDependencyError;
 
 module.exports = {
   IllegalExtensionError: IllegalExtensionError,
-  MissingExtendedDependencyError: MissingExtendedDependencyError
+  UnregisteredDependencyError: UnregisteredDependencyError,
+  UnregisteredExtendedDependencyError: UnregisteredExtendedDependencyError
 };
