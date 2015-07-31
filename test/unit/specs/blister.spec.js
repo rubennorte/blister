@@ -267,11 +267,11 @@ describe('BlisterContainer', function() {
         container.extend('id', valueFn);
 
         container.get('id');
-        expect(valueFn).toHaveBeenCalledWith(container, 'value');
+        expect(valueFn).toHaveBeenCalledWith('value', container);
         expect(valueFn.calls.first().object).toBe(container);
 
         container.get('id');
-        expect(valueFn).toHaveBeenCalledWith(container, 'value');
+        expect(valueFn).toHaveBeenCalledWith('value', container);
         expect(valueFn.calls.first().object).toBe(container);
       });
 
@@ -311,12 +311,12 @@ describe('BlisterContainer', function() {
         container.extend('id', factoryFn);
 
         container.get('id');
-        expect(factoryFn).toHaveBeenCalledWith(container, 1);
+        expect(factoryFn).toHaveBeenCalledWith(1, container);
         expect(factoryFn.calls.count()).toEqual(1);
         expect(factoryFn.calls.all()[0].object).toBe(container);
 
         container.get('id');
-        expect(factoryFn).toHaveBeenCalledWith(container, 2);
+        expect(factoryFn).toHaveBeenCalledWith(2, container);
         expect(factoryFn.calls.count()).toEqual(2);
         expect(factoryFn.calls.all()[1].object).toBe(container);
       });
@@ -356,11 +356,11 @@ describe('BlisterContainer', function() {
         container.extend('id', serviceFn);
 
         container.get('id');
-        expect(serviceFn).toHaveBeenCalledWith(container, 1);
+        expect(serviceFn).toHaveBeenCalledWith(1, container);
         expect(serviceFn.calls.first().object).toBe(container);
 
         container.get('id');
-        expect(serviceFn).toHaveBeenCalledWith(container, 1);
+        expect(serviceFn).toHaveBeenCalledWith(1, container);
         expect(serviceFn.calls.first().object).toBe(container);
       });
 

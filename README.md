@@ -112,7 +112,7 @@ container.singleton('some-service', function() {
 });
 
 // after that definition
-container.extend('some-service', function(c, service) {
+container.extend('some-service', function(service, c) {
   service.addLogger(c.get('logger'));
 });
 

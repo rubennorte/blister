@@ -29,7 +29,7 @@ var wrappers = {
   factory: function wrapFactory(value, container, originalWrapper) {
     return function() {
       if (originalWrapper) {
-        return value.call(container, container, originalWrapper());
+        return value.call(container, originalWrapper(), container);
       }
       return value.call(container, container);
     };
@@ -49,7 +49,7 @@ var wrappers = {
       if (!cached) {
         cached = true;
         if (originalWrapper) {
-          cachedValue = value.call(container, container, originalWrapper());
+          cachedValue = value.call(container, originalWrapper(), container);
         } else {
           cachedValue = value.call(container, container);
         }
