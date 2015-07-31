@@ -5,11 +5,36 @@ var wrappers = require('./wrappers');
 var errors = require('./errors');
 
 var IllegalExtensionError = errors.IllegalExtensionError;
-var MissingExtendedDependencyError = errors.MissingExtendedDependencyError;
+var UnregisteredDependencyError = errors.UnregisteredDependencyError;
+var UnregisteredExtendedDependencyError = errors.UnregisteredExtendedDependencyError;
 
 var VALUE = 'value';
 var SINGLETON = 'singleton';
 var FACTORY = 'factory';
+
+var objectHasProp = Object.prototype.hasOwnProperty;
+
+/**
+ * Indicates if the given object has the given propery name as own
+ * @private
+ * @param  {Object} object
+ * @param  {string} name
+ * @return {boolean}
+ */
+function hasOwnProp(obj, name) {
+  return objectHasProp.call(obj, name);
+}
+
+/**
+ * @private
+ * @param  {*} id
+ * @throws {TypeError} If the passed id is not a string
+ */
+function checkId(id) {
+  if (typeof id !== 'string') {
+    throw new TypeError('The dependency id must be a string: ' + id);
+  }
+}
 
 /**
  * Dependency injection container constructor
@@ -26,11 +51,24 @@ function BlisterContainer() {
 }
 
 BlisterContainer.IllegalExtensionError = IllegalExtensionError;
-BlisterContainer.MissingExtendedDependencyError = MissingExtendedDependencyError;
+BlisterContainer.UnregisteredDependencyError = UnregisteredDependencyError;
+BlisterContainer.UnregisteredExtendedDependencyError = UnregisteredExtendedDependencyError;
 
 BlisterContainer.prototype = {
 
   constructor: BlisterContainer,
+
+  /**
+   * Indicates if there is a registered dependency with the given id
+   * @param  {string} id
+   * @return {boolean}
+   * @throws {TypeError} If the id is not a string
+   */
+  has: function(id) {
+    checkId(id);
+
+    return hasOwnProp(this._deps, id);
+  },
 
   /**
    * Returns the dependency set with the given id,
@@ -39,8 +77,13 @@ BlisterContainer.prototype = {
    * @return {*}
    */
   get: function(id) {
-    var wrapper = this._deps[id];
-    return wrapper && wrapper();
+    checkId(id);
+
+    if (!hasOwnProp(this._deps, id)) {
+      throw new UnregisteredDependencyError('Cannot get unregistered dependency ' + id);
+    }
+
+    return this._deps[id]();
   },
 
   /**
@@ -67,29 +110,27 @@ BlisterContainer.prototype = {
   },
 
   /**
-   * Registers the given singleton function with the specified id
+   * Registers the given service function with the specified id
    * @param  {string} id
-   * @param  {Function} singletonFn
+   * @param  {Function} serviceFn
    * @return {BlisterContainer} this
    * @throws {TypeError} If id is not a string
-   * @throws {TypeError} If singletonFn is not a function
+   * @throws {TypeError} If serviceFn is not a function
    */
-  singleton: function(id, singletonFn) {
-    return this._set(id, singletonFn, SINGLETON, false);
+  service: function(id, serviceFn) {
+    return this._set(id, serviceFn, SINGLETON, false);
   },
 
   /**
    * Extends a previously defined dependency with the same type:
-   * factory or singleton
+   * service or factory
    * @param  {string} id
    * @param  {Function} definition
    * @return {BlisterContainer} this
    * @throws {TypeError} If id is not a string
    * @throws {TypeError} If definition is not a function
-   * @throws {MissingExtendedDependencyError} If there was not a previously
+   * @throws {UnregisteredExtendedDependencyError} If there was not a previously
    *         defined dependency with that id
-   * @throws {IllegalExtensionError} If trying to extend a dependency
-   *         registered as value
    */
   extend: function(id, definition) {
     return this._set(id, definition, undefined, true);
@@ -106,28 +147,29 @@ BlisterContainer.prototype = {
    *                              so the original value is stored and passed to
    *                              the new definition
    * @return {BlisterContainer} The container itself
+   * @throws {TypeError} If the id is not a string
+   * @throws {TypeError} If value is not a function when the type is
+   *         'SINGLETON' or 'FACTORY'
+   * @throws {UnregisteredExtendedDependencyError} When trying to extend an
+   *         unregistered dependency
    */
   _set: function(id, value, type, isExtension) {
-    if (typeof id !== 'string') {
-      throw new TypeError('The dependency id must be a string: ' + id);
-    }
+    checkId(id);
 
     var originalWrapper = isExtension ? this._deps[id] : undefined;
     if (isExtension) {
       if (!originalWrapper) {
-        throw new MissingExtendedDependencyError();
+        throw new UnregisteredExtendedDependencyError();
       }
+
       type = originalWrapper.type;
+      if (type === VALUE) {
+        type = SINGLETON;
+      }
     }
 
-    if (typeof value !== 'function' && type !== VALUE) {
-      throw new TypeError(
-        'The argument must be a function: ' +
-        value);
-    }
-
-    if (type === VALUE && isExtension) {
-      throw new IllegalExtensionError();
+    if (typeof value !== 'function' && (isExtension || type !== VALUE)) {
+      throw new TypeError('The argument must be a function: ' + value);
     }
 
     this._deps[id] = wrappers.create(type, value, this, originalWrapper);
@@ -204,20 +246,35 @@ IllegalExtensionError.constructor = IllegalExtensionError;
 /**
  * @class
  * @extends {Error}
+ * @param {string} [message='Cannot get an unregistered dependency']
+ * @private
+ */
+function UnregisteredDependencyError(message) {
+  this.name = 'UnregisteredDependencyError';
+  this.message = message || 'Cannot get an unregistered dependency';
+}
+
+UnregisteredDependencyError.prototype = new ErrorWrapper();
+UnregisteredDependencyError.constructor = UnregisteredDependencyError;
+
+/**
+ * @class
+ * @extends {Error}
  * @param {string} [message='Cannot extend a dependency not previously set']
  * @private
  */
-function MissingExtendedDependencyError(message) {
-  this.name = 'MissingExtendedDependencyError';
+function UnregisteredExtendedDependencyError(message) {
+  this.name = 'UnregisteredExtendedDependencyError';
   this.message = message || 'Cannot extend a dependency not previously set';
 }
 
-MissingExtendedDependencyError.prototype = new ErrorWrapper();
-MissingExtendedDependencyError.constructor = MissingExtendedDependencyError;
+UnregisteredExtendedDependencyError.prototype = new ErrorWrapper();
+UnregisteredExtendedDependencyError.constructor = UnregisteredExtendedDependencyError;
 
 module.exports = {
   IllegalExtensionError: IllegalExtensionError,
-  MissingExtendedDependencyError: MissingExtendedDependencyError
+  UnregisteredDependencyError: UnregisteredDependencyError,
+  UnregisteredExtendedDependencyError: UnregisteredExtendedDependencyError
 };
 
 },{}],3:[function(require,module,exports){
@@ -252,7 +309,7 @@ var wrappers = {
   factory: function wrapFactory(value, container, originalWrapper) {
     return function() {
       if (originalWrapper) {
-        return value.call(container, container, originalWrapper());
+        return value.call(container, originalWrapper(), container);
       }
       return value.call(container, container);
     };
@@ -272,7 +329,7 @@ var wrappers = {
       if (!cached) {
         cached = true;
         if (originalWrapper) {
-          cachedValue = value.call(container, container, originalWrapper());
+          cachedValue = value.call(container, originalWrapper(), container);
         } else {
           cachedValue = value.call(container, container);
         }
