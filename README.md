@@ -102,8 +102,6 @@ Dependencies already defined in the container can be modified or extended. That 
 
 The extension preserves the type of the original dependency (factory or service).
 
-Value dependencies cannot be extended. They must be redefined instead.
-
 Example:
 
 ```js
@@ -130,8 +128,8 @@ Example:
 ```javascript
 var provider = {
  register: function(container) {
-   container.set('protocol', 'http://');
-   container.set('host', 'example.com');
+   container.value('protocol', 'http://');
+   container.value('host', 'example.com');
  }
 };
 
