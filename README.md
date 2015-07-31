@@ -53,8 +53,6 @@ container.has('name'); //> true
 
 Raw values can be stored in the container. The registered parameters is what the container returns when the dependency is requested.
 
-If the dependency is not a function, the parameter is optional.
-
 Example:
 
 ```js
