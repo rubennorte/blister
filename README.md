@@ -65,14 +65,14 @@ container.value('randomFn', Math.random);
 container.get('randomFn'); //> function random() { [native code] }
 ```
 
-#### Setting singletons
+#### Setting services
 
 Dependencies can be registered as a singleton functions. Those functions are executed the first time the associated dependency is requested. The result of the functions is returned and cached for subsequent calls.
 
 Example:
 
 ```js
-container.singleton('host', function(c) {
+container.service('host', function(c) {
   console.log('called');
   return c.get('protocol') === 'http://' ?
     'example.com' : 'secure.example.com';
@@ -100,14 +100,14 @@ container.get('timestamp'); 1431773281953
 
 Dependencies already defined in the container can be modified or extended. That functionality can be useful, for example, to add plugins to a service.
 
-The extension preserves the type of the original dependency (factory or singleton).
+The extension preserves the type of the original dependency (factory or service).
 
 Value dependencies cannot be extended. They must be redefined instead.
 
 Example:
 
 ```js
-container.singleton('some-service', function() {
+container.service('some-service', function() {
   return service;
 });
 
@@ -119,7 +119,7 @@ container.extend('some-service', function(service, c) {
 container.get('service'); //> singleton service with logger
 ```
 
-If the previous dependency is not used in the definition of the extension, it can be replaced using `value`, `factory` or `singleton` instead.
+If the previous dependency is not used in the definition of the extension, it can be replaced using `value`, `factory` or `service` instead.
 
 #### Registering service providers
 

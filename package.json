@@ -12,8 +12,10 @@
     "di",
     "pimple",
     "provider",
+    "service",
     "singleton",
     "factory",
+    "value",
     "configuration",
     "config",
     "IoC"
