@@ -130,8 +130,6 @@ BlisterContainer.prototype = {
    * @throws {TypeError} If definition is not a function
    * @throws {UnregisteredExtendedDependencyError} If there was not a previously
    *         defined dependency with that id
-   * @throws {IllegalExtensionError} If trying to extend a dependency
-   *         registered as value
    */
   extend: function(id, definition) {
     return this._set(id, definition, undefined, true);
@@ -153,8 +151,6 @@ BlisterContainer.prototype = {
    *         'SINGLETON' or 'FACTORY'
    * @throws {UnregisteredExtendedDependencyError} When trying to extend an
    *         unregistered dependency
-   * @throws {IllegalExtensionError} When trying to extend a value dependency.
-   *         It must be redefined instead.
    */
   _set: function(id, value, type, isExtension) {
     checkId(id);
@@ -164,17 +160,15 @@ BlisterContainer.prototype = {
       if (!originalWrapper) {
         throw new UnregisteredExtendedDependencyError();
       }
+
       type = originalWrapper.type;
+      if (type === VALUE) {
+        type = SINGLETON;
+      }
     }
 
-    if (typeof value !== 'function' && type !== VALUE) {
-      throw new TypeError(
-        'The argument must be a function: ' +
-        value);
-    }
-
-    if (type === VALUE && isExtension) {
-      throw new IllegalExtensionError();
+    if (typeof value !== 'function' && (isExtension || type !== VALUE)) {
+      throw new TypeError('The argument must be a function: ' + value);
     }
 
     this._deps[id] = wrappers.create(type, value, this, originalWrapper);
