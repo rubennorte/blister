@@ -66,20 +66,20 @@ BlisterContainer.prototype = {
   },
 
   /**
-   * Registers the given singleton function with the specified id
+   * Registers the given service function with the specified id
    * @param  {string} id
-   * @param  {Function} singletonFn
+   * @param  {Function} serviceFn
    * @return {BlisterContainer} this
    * @throws {TypeError} If id is not a string
-   * @throws {TypeError} If singletonFn is not a function
+   * @throws {TypeError} If serviceFn is not a function
    */
-  singleton: function(id, singletonFn) {
-    return this._set(id, singletonFn, SINGLETON, false);
+  service: function(id, serviceFn) {
+    return this._set(id, serviceFn, SINGLETON, false);
   },
 
   /**
    * Extends a previously defined dependency with the same type:
-   * factory or singleton
+   * service or factory
    * @param  {string} id
    * @param  {Function} definition
    * @return {BlisterContainer} this

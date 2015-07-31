@@ -18,7 +18,7 @@ describe('BlisterContainer', function() {
     expect(BlisterContainer.prototype.get).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.value).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.factory).toEqual(jasmine.any(Function));
-    expect(BlisterContainer.prototype.singleton).toEqual(jasmine.any(Function));
+    expect(BlisterContainer.prototype.service).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.register).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.extend).toEqual(jasmine.any(Function));
 
@@ -129,53 +129,53 @@ describe('BlisterContainer', function() {
 
   });
 
-  describe('#singleton(id, argument)', function() {
+  describe('#service(id, argument)', function() {
 
     it('should register so get(id) returns a cached result of the argument', function() {
-      container.singleton('singleton', createCounter());
-      var first = container.get('singleton');
-      var second = container.get('singleton');
+      container.service('service', createCounter());
+      var first = container.get('service');
+      var second = container.get('service');
       expect(first).toBe(1);
       expect(second).toBe(1);
     });
 
     it('should register so get(id) calls argument with container as "this" and param', function() {
-      var singletonFn = jasmine.createSpy('singletonFn');
-      container.singleton('singleton', singletonFn);
-      container.get('singleton');
-      expect(singletonFn).toHaveBeenCalledWith(container);
-      expect(singletonFn.calls.count()).toEqual(1);
-      expect(singletonFn.calls.first().object).toBe(container);
+      var serviceFn = jasmine.createSpy('serviceFn');
+      container.service('service', serviceFn);
+      container.get('service');
+      expect(serviceFn).toHaveBeenCalledWith(container);
+      expect(serviceFn.calls.count()).toEqual(1);
+      expect(serviceFn.calls.first().object).toBe(container);
     });
 
     it('should not call the argument until get(id) is called', function() {
-      var singletonFn = jasmine.createSpy();
-      container.singleton('singleton', singletonFn);
-      expect(singletonFn).not.toHaveBeenCalled();
+      var serviceFn = jasmine.createSpy();
+      container.service('service', serviceFn);
+      expect(serviceFn).not.toHaveBeenCalled();
 
-      container.get('singleton');
-      expect(singletonFn).toHaveBeenCalled();
+      container.get('service');
+      expect(serviceFn).toHaveBeenCalled();
     });
 
     it('should overwrite a previously defined argument with the same id', function() {
-      container.singleton('id', function() {
+      container.service('id', function() {
         return 'foo';
       });
-      container.singleton('id', function() {
+      container.service('id', function() {
         return 5;
       });
       expect(container.get('id')).toBe(5);
     });
 
     it('should return the container', function() {
-      expect(container.singleton('id', function() {})).toBe(container);
+      expect(container.service('id', function() {})).toBe(container);
     });
 
     describe('when the argument is not a function', function() {
 
       it('should throw a type error', function() {
         expect(function() {
-          container.singleton('string-id', 'foo');
+          container.service('string-id', 'foo');
         }).toThrowError(TypeError);
       });
 
@@ -253,10 +253,10 @@ describe('BlisterContainer', function() {
 
     });
 
-    describe('when extending a singleton', function() {
+    describe('when extending a service', function() {
 
       it('should extend so get(id) returns a cached result of the argument', function() {
-        container.singleton('id', function() {});
+        container.service('id', function() {});
         container.extend('id', createCounter());
 
         expect(container.get('id')).toBe(1);
@@ -264,21 +264,21 @@ describe('BlisterContainer', function() {
       });
 
       it('should extend so get(id) calls properly the new argument', function() {
-        container.singleton('id', createCounter());
-        var singletonFn = jasmine.createSpy('singletonFn');
-        container.extend('id', singletonFn);
+        container.service('id', createCounter());
+        var serviceFn = jasmine.createSpy('serviceFn');
+        container.extend('id', serviceFn);
 
         container.get('id');
-        expect(singletonFn).toHaveBeenCalledWith(container, 1);
-        expect(singletonFn.calls.first().object).toBe(container);
+        expect(serviceFn).toHaveBeenCalledWith(container, 1);
+        expect(serviceFn.calls.first().object).toBe(container);
 
         container.get('id');
-        expect(singletonFn).toHaveBeenCalledWith(container, 1);
-        expect(singletonFn.calls.first().object).toBe(container);
+        expect(serviceFn).toHaveBeenCalledWith(container, 1);
+        expect(serviceFn.calls.first().object).toBe(container);
       });
 
       it('should return the container', function() {
-        container.singleton('id', function() {});
+        container.service('id', function() {});
         var returnValue = container.extend('id', function() {});
         expect(returnValue).toBe(container);
       });
@@ -286,10 +286,10 @@ describe('BlisterContainer', function() {
       describe('when the argument is not a function', function() {
 
         it('should throw a type error', function() {
-          container.singleton('singleton', function() {});
+          container.service('service', function() {});
 
           expect(function() {
-            container.extend('singleton', 'foo');
+            container.extend('service', 'foo');
           }).toThrowError(TypeError);
         });
 
