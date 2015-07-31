@@ -253,14 +253,44 @@ describe('BlisterContainer', function() {
 
     describe('when extending a value', function() {
 
-      it('should throw an error', function() {
-        container.value('id', 'foo');
-        expect(function() {
-          container.extend('id', 'bar');
-        }).toThrowError(BlisterContainer.IllegalExtensionError);
-        expect(function() {
-          container.extend('id', function() {});
-        }).toThrowError(BlisterContainer.IllegalExtensionError);
+      it('should extend so get(id) returns a cached result of the argument', function() {
+        container.value('id', 'value');
+        container.extend('id', createCounter());
+
+        expect(container.get('id')).toBe(1);
+        expect(container.get('id')).toBe(1);
+      });
+
+      it('should extend so get(id) calls properly the new argument', function() {
+        container.value('id', 'value');
+        var valueFn = jasmine.createSpy('valueFn');
+        container.extend('id', valueFn);
+
+        container.get('id');
+        expect(valueFn).toHaveBeenCalledWith(container, 'value');
+        expect(valueFn.calls.first().object).toBe(container);
+
+        container.get('id');
+        expect(valueFn).toHaveBeenCalledWith(container, 'value');
+        expect(valueFn.calls.first().object).toBe(container);
+      });
+
+      it('should return the container', function() {
+        container.value('id', 'value');
+        var returnValue = container.extend('id', function() {});
+        expect(returnValue).toBe(container);
+      });
+
+      describe('when the argument is not a function', function() {
+
+        it('should throw a type error', function() {
+          container.value('id', 'value');
+
+          expect(function() {
+            container.extend('id', 'foo');
+          }).toThrowError(TypeError);
+        });
+
       });
 
     });
