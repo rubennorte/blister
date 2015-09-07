@@ -135,6 +135,29 @@ var container = new Blister();
 container.register(provider);
 ```
 
+#### Creating new contexts
+
+Some scenarios may require different instances of a DI container. For example, we may want to have different DI containers to handle different requests of a server (having specific dependencies for the current request).
+
+In order to be able to define global dependencies and context-specific dependencies, we can create a new context from a container, which is just a container that inherits dependencies from the original one.
+
+Example:
+
+```javascript
+var container = new Blister();
+container.service('logger', function() {
+  return 'system logger';
+});
+
+var context = container.createContext();
+context.get('logger'); // 'system logger'
+
+context.service('logger', function() {
+  return 'request logger';
+});
+context.get('logger'); // 'request logger'
+```
+
 ## Documentation
 
 To generate the code documentation of the project:

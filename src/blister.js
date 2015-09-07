@@ -171,6 +171,12 @@ BlisterContainer.prototype = {
     return this;
   },
 
+  /**
+   * Creates a new context for the current dependency injection container.
+   * A context inherits all the dependencies of its parent container and can
+   * define its own dependencies that shadow the ones of the container.
+   * @return {BlisterContainer}
+   */
   createContext: function() {
     var context = Object.create(BlisterContainer.prototype);
     context._deps = Object.create(this._deps);
