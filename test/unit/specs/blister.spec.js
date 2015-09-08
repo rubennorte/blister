@@ -498,7 +498,7 @@ describe('BlisterContainer', function() {
         expect(context.get('value-dep')).toEqual('context-value');
       });
 
-      it('should be able to extend the containers dependencies', function() {
+      it('should be able to extend the dependencies of the container', function() {
         container.service('service-dep', function() {
           return 'service';
         });
@@ -511,7 +511,7 @@ describe('BlisterContainer', function() {
         expect(context.get('service-dep')).toEqual('context-service');
       });
 
-      it('should leave the container unmodified', function() {
+      it('should not modify the dependencies of the container', function() {
         container.service('service-dep', function() {
           return 'service';
         });
