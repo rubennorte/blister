@@ -158,7 +158,43 @@ context.service('logger', function() {
 context.get('logger'); // 'request logger'
 ```
 
-__NOTE__: To prevent errors with services, which are cached, they are bound to the dependencies of the context/container where they are defined. That way, accessing a service through a context will not cache it in the container with a dependency of a sub-context.
+__IMPORTANT__:
+
+If you have dependencies in a container that should use dependencies from a sub-context when accessing through it, define them as factories instead of as services.
+
+All the dependencies of a given service are fetched from the context where the service is defined:
+
+```javascript
+var container = new Blister();
+container.service('logger', function(c) {
+  return c.get('scope') + ' logger';
+});
+container.value('scope', 'system');
+
+var context = container.createContext();
+context.value('scope', 'request');
+
+context.get('logger'); // 'system logger';
+container.get('logger'); // 'system logger';
+```
+
+This is because services are cached in the scope where they are defined (to make them a system-wide singleton as expected), so accessing a dependency of the context would make the service inconsistent in the scope of the container (as it would use a dependency of a specifc sub-context).
+
+This problem does not exist in factories, because they do not have this kind of side-effects (they are not cached):
+
+```javascript
+var container = new Blister();
+container.factory('logger', function(c) {
+  return c.get('scope') + ' logger';
+});
+container.value('scope', 'system');
+
+var context = container.createContext();
+context.value('scope', 'request');
+
+context.get('logger'); // 'request logger';
+container.get('logger'); // 'system logger';
+```
 
 ## Documentation
 
