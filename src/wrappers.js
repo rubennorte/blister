@@ -29,9 +29,9 @@ var wrappers = {
   factory: function wrapFactory(value, container, originalWrapper) {
     return function() {
       if (originalWrapper) {
-        return value.call(container, originalWrapper(), container);
+        return value.call(this, originalWrapper(), this);
       }
-      return value.call(container, container);
+      return value.call(this, this);
     };
   },
 

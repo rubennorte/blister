@@ -68,7 +68,7 @@ BlisterContainer.prototype = {
       throw new UnregisteredDependencyError('Cannot get unregistered dependency ' + id);
     }
 
-    return this._deps[id]();
+    return this._deps[id].call(this);
   },
 
   /**

@@ -158,6 +158,8 @@ context.service('logger', function() {
 context.get('logger'); // 'request logger'
 ```
 
+__NOTE__: To prevent errors with services, which are cached, they are bound to the dependencies of the context/container where they are defined. That way, accessing a service through a context will not cache it in the container with a dependency of a sub-context.
+
 ## Documentation
 
 To generate the code documentation of the project:

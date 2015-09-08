@@ -535,6 +535,62 @@ describe('BlisterContainer', function() {
         expect(container.get('value-dep')).toEqual('value');
       });
 
+      describe('when accessing a factory of the container through the context', function() {
+
+        it('should use dependencies defined in the scope of the context', function() {
+          container.factory('factory-dep', function(c) {
+            return 'got ' + c.get('sub-dep');
+          });
+
+          var context = container.createContext();
+
+          context.factory('sub-dep', function() {
+            return 'context-dep';
+          });
+
+          expect(context.get('factory-dep')).toEqual('got context-dep');
+          expect(function() {
+            container.get('factory-dep');
+          }).toThrowError(BlisterContainer.UnregisteredDependencyError);
+
+          container.factory('sub-dep', function() {
+            return 'container-dep';
+          });
+          expect(container.get('factory-dep')).toEqual('got container-dep');
+        });
+
+      });
+
+      describe('when accessing a service of the container through the context', function() {
+
+        it('should not use dependencies defined in the scope of the context', function() {
+          container.service('service-dep', function(c) {
+            return 'got ' + c.get('factory-dep');
+          });
+
+          var context = container.createContext();
+
+          context.factory('factory-dep', function() {
+            return 'context-factory';
+          });
+
+          expect(function() {
+            container.get('service-dep');
+          }).toThrowError(BlisterContainer.UnregisteredDependencyError);
+
+          expect(function() {
+            context.get('service-dep');
+          }).toThrowError(BlisterContainer.UnregisteredDependencyError);
+
+          container.factory('factory-dep', function() {
+            return 'container-factory';
+          });
+
+          expect(container.get('service-dep')).toEqual('got container-factory');
+        });
+
+      });
+
     });
 
   });
