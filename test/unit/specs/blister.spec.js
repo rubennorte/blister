@@ -55,6 +55,24 @@ describe('BlisterContainer', function() {
 
     });
 
+    describe('when there is an error accessing a service', function() {
+
+      it('should not cache it', function() {
+        container.service('id', function(c) {
+          return c.get('value');
+        });
+
+        expect(function() {
+          container.get('id');
+        }).toThrow();
+
+        container.value('value', 'value');
+
+        expect(container.get('id')).toEqual('value');
+      });
+
+    });
+
   });
 
   describe('#has(id)', function() {
