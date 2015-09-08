@@ -47,12 +47,12 @@ var wrappers = {
     var cachedValue;
     return function() {
       if (!cached) {
-        cached = true;
         if (originalWrapper) {
           cachedValue = value.call(container, originalWrapper(), container);
         } else {
           cachedValue = value.call(container, container);
         }
+        cached = true;
         value = null;
       }
       return cachedValue;
