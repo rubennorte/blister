@@ -22,6 +22,7 @@ describe('BlisterContainer', function() {
     expect(BlisterContainer.prototype.service).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.register).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.extend).toEqual(jasmine.any(Function));
+    expect(BlisterContainer.prototype.createContext).toEqual(jasmine.any(Function));
 
     expect(BlisterContainer.IllegalExtensionError).toEqual(jasmine.any(Function));
     expect(BlisterContainer.UnregisteredExtendedDependencyError).toEqual(jasmine.any(Function));
@@ -426,6 +427,191 @@ describe('BlisterContainer', function() {
       expect(function() {
         container.register({});
       }).toThrowError(TypeError);
+    });
+
+  });
+
+  describe('#createContext', function() {
+
+    it('should return a new BlisterContainer instance', function() {
+      var context = container.createContext();
+
+      expect(context).toEqual(jasmine.any(BlisterContainer));
+      expect(context).not.toBe(container);
+    });
+
+    describe('the new BlisterContainer instance', function() {
+
+      it('should inherit all the current dependencies of the container', function() {
+        container.service('service-dep', function() {
+          return 'service';
+        });
+        container.factory('factory-dep', function() {
+          return 'factory';
+        });
+        container.value('value-dep', 'value');
+
+        var context = container.createContext();
+
+        expect(context.get('service-dep')).toEqual('service');
+        expect(context.get('factory-dep')).toEqual('factory');
+        expect(context.get('value-dep')).toEqual('value');
+      });
+
+      it('should inherit all the future dependencies of the container', function() {
+        var context = container.createContext();
+
+        container.service('service-dep', function() {
+          return 'service';
+        });
+        container.factory('factory-dep', function() {
+          return 'factory';
+        });
+        container.value('value-dep', 'value');
+
+        expect(context.get('service-dep')).toEqual('service');
+        expect(context.get('factory-dep')).toEqual('factory');
+        expect(context.get('value-dep')).toEqual('value');
+      });
+
+      it('should shadow the dependencies of the container', function() {
+        container.service('service-dep', function() {
+          return 'service';
+        });
+        container.factory('factory-dep', function() {
+          return 'factory';
+        });
+        container.value('value-dep', 'value');
+
+        var context = container.createContext();
+
+        context.service('service-dep', function() {
+          return 'context-service';
+        });
+        context.factory('factory-dep', function() {
+          return 'context-factory';
+        });
+        context.value('value-dep', 'context-value');
+
+        expect(context.get('service-dep')).toEqual('context-service');
+        expect(context.get('factory-dep')).toEqual('context-factory');
+        expect(context.get('value-dep')).toEqual('context-value');
+      });
+
+      it('should be able to extend the dependencies of the container', function() {
+        container.service('service-dep', function() {
+          return 'service';
+        });
+
+        var context = container.createContext();
+        context.extend('service-dep', function(service) {
+          return 'context-' + service;
+        });
+
+        expect(context.get('service-dep')).toEqual('context-service');
+      });
+
+      it('should not modify the dependencies of the container', function() {
+        container.service('service-dep', function() {
+          return 'service';
+        });
+        container.factory('factory-dep', function() {
+          return 'factory';
+        });
+        container.value('value-dep', 'value');
+
+        var context = container.createContext();
+
+        context.service('service-dep', function() {
+          return 'context-service';
+        });
+        context.factory('factory-dep', function() {
+          return 'context-factory';
+        });
+        context.value('value-dep', 'context-value');
+
+        expect(container.get('service-dep')).toEqual('service');
+        expect(container.get('factory-dep')).toEqual('factory');
+        expect(container.get('value-dep')).toEqual('value');
+      });
+
+    });
+
+    describe('factories defined in the scope of a container', function() {
+
+      it('should use dependencies of a context when accessing through it', function() {
+        container.factory('factory-dep', function(c) {
+          return 'got ' + c.get('sub-dep');
+        });
+
+        var context = container.createContext();
+        context.factory('sub-dep', function() {
+          return 'context-dep';
+        });
+
+        expect(context.get('factory-dep')).toEqual('got context-dep');
+      });
+
+      it('should use dependencies of the container when accessing through it', function() {
+        container.factory('factory-dep', function(c) {
+          return 'got ' + c.get('sub-dep');
+        });
+
+        var context = container.createContext();
+        context.factory('sub-dep', function() {
+          return 'context-dep';
+        });
+
+        expect(function() {
+          container.get('factory-dep');
+        }).toThrowError(BlisterContainer.UnregisteredDependencyError);
+
+        container.factory('sub-dep', function() {
+          return 'container-dep';
+        });
+        expect(container.get('factory-dep')).toEqual('got container-dep');
+      });
+
+    });
+
+    describe('services defined in the scope of a container', function() {
+
+      it('should NOT use dependencies of a context when accessing through it', function() {
+        container.service('service-dep', function(c) {
+          return 'got ' + c.get('factory-dep');
+        });
+
+        var context = container.createContext();
+
+        context.factory('factory-dep', function() {
+          return 'context-factory';
+        });
+
+        expect(function() {
+          context.get('service-dep');
+        }).toThrowError(BlisterContainer.UnregisteredDependencyError);
+      });
+
+      it('should use dependencies of the container when accessing through it', function() {
+        container.service('service-dep', function(c) {
+          return 'got ' + c.get('factory-dep');
+        });
+
+        var context = container.createContext();
+        context.factory('factory-dep', function() {
+          return 'context-factory';
+        });
+
+        expect(function() {
+          container.get('service-dep');
+        }).toThrowError(BlisterContainer.UnregisteredDependencyError);
+
+        container.factory('factory-dep', function() {
+          return 'container-factory';
+        });
+        expect(container.get('service-dep')).toEqual('got container-factory');
+      });
+
     });
 
   });

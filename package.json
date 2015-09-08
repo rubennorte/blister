@@ -18,7 +18,8 @@
     "value",
     "configuration",
     "config",
-    "IoC"
+    "IoC",
+    "context"
   ],
   "homepage": "https://github.com/rubennorte/blister",
   "bugs": {
