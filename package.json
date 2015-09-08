@@ -1,6 +1,6 @@
 {
   "name": "blister",
-  "version": "0.11.1",
+  "version": "0.12.0",
   "author": "Rubén Norte <rubennorte@gmail.com>",
   "description": "Minimalist dependency injection container for JavaScript",
   "license": "MIT",

@@ -12,19 +12,6 @@ var VALUE = 'value';
 var SINGLETON = 'singleton';
 var FACTORY = 'factory';
 
-var objectHasProp = Object.prototype.hasOwnProperty;
-
-/**
- * Indicates if the given object has the given propery name as own
- * @private
- * @param  {Object} object
- * @param  {string} name
- * @return {boolean}
- */
-function hasOwnProp(obj, name) {
-  return objectHasProp.call(obj, name);
-}
-
 /**
  * @private
  * @param  {*} id
@@ -47,7 +34,7 @@ function checkId(id) {
  * @class
  */
 function BlisterContainer() {
-  this._deps = {};
+  this._deps = Object.create(null);
 }
 
 BlisterContainer.IllegalExtensionError = IllegalExtensionError;
@@ -66,8 +53,7 @@ BlisterContainer.prototype = {
    */
   has: function(id) {
     checkId(id);
-
-    return hasOwnProp(this._deps, id);
+    return id in this._deps;
   },
 
   /**
@@ -79,11 +65,11 @@ BlisterContainer.prototype = {
   get: function(id) {
     checkId(id);
 
-    if (!hasOwnProp(this._deps, id)) {
+    if (!this.has(id)) {
       throw new UnregisteredDependencyError('Cannot get unregistered dependency ' + id);
     }
 
-    return this._deps[id]();
+    return this._deps[id].call(this);
   },
 
   /**
@@ -184,6 +170,18 @@ BlisterContainer.prototype = {
   register: function(provider) {
     provider.register(this);
     return this;
+  },
+
+  /**
+   * Creates a new context for the current dependency injection container.
+   * A context inherits all the dependencies of its parent container and can
+   * define its own dependencies that shadow the ones of the container.
+   * @return {BlisterContainer}
+   */
+  createContext: function() {
+    var context = Object.create(BlisterContainer.prototype);
+    context._deps = Object.create(this._deps);
+    return context;
   }
 
 };
@@ -309,9 +307,9 @@ var wrappers = {
   factory: function wrapFactory(value, container, originalWrapper) {
     return function() {
       if (originalWrapper) {
-        return value.call(container, originalWrapper(), container);
+        return value.call(this, originalWrapper(), this);
       }
-      return value.call(container, container);
+      return value.call(this, this);
     };
   },
 
