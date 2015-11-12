@@ -407,26 +407,45 @@ describe('BlisterContainer', function() {
 
   describe('#register(provider)', function() {
 
-    it('should call provider.register with the container as parameter', function() {
-      var provider = jasmine.createSpyObj('provider', ['register']);
-      container.register(provider);
-      expect(provider.register).toHaveBeenCalledWith(container);
+    describe('when the provider is a function', function() {
+
+      it('should call it with the container as parameter', function() {
+        var provider = jasmine.createSpy('provider');
+        container.register(provider);
+        expect(provider).toHaveBeenCalledWith(container);
+      });
+
+      it('should return the container', function() {
+        var returnValue = container.register(function() {});
+        expect(returnValue).toBe(container);
+      });
+
     });
 
-    it('should return the container', function() {
-      var provider = jasmine.createSpyObj('provider', ['register']);
-      var returnValue = container.register(provider);
-      expect(returnValue).toBe(container);
-    });
+    describe('when the provider is an object', function() {
 
-    it('should throw an error if the provider does not have a register method', function() {
-      expect(function() {
-        container.register(5);
-      }).toThrowError(TypeError);
+      it('should call provider.register with the container as parameter', function() {
+        var provider = jasmine.createSpyObj('provider', ['register']);
+        container.register(provider);
+        expect(provider.register).toHaveBeenCalledWith(container);
+      });
 
-      expect(function() {
-        container.register({});
-      }).toThrowError(TypeError);
+      it('should return the container', function() {
+        var provider = jasmine.createSpyObj('provider', ['register']);
+        var returnValue = container.register(provider);
+        expect(returnValue).toBe(container);
+      });
+
+      it('should throw an error if the provider does not have a register method', function() {
+        expect(function() {
+          container.register(5);
+        }).toThrowError(TypeError);
+
+        expect(function() {
+          container.register({});
+        }).toThrowError(TypeError);
+      });
+
     });
 
   });
