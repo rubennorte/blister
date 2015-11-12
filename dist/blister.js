@@ -168,7 +168,11 @@ BlisterContainer.prototype = {
    * @return {BlisterContainer} the container itself
    */
   register: function(provider) {
-    provider.register(this);
+    if (typeof provider === 'function') {
+      provider(this);
+    } else {
+      provider.register(this);
+    }
     return this;
   },
 
