@@ -119,9 +119,21 @@ If the previous dependency is not used in the definition of the extension, it ca
 
 #### Registering service providers
 
-Service providers can be used to help organizing the registration of dependencies. A service provider is any object implementing a `register` method.
+Service providers can be used to help organizing the registration of dependencies. A service provider can be both a function or anything implementing a `register` method.
 
-Example:
+Example with a function:
+
+```javascript
+function provider(container) {
+   container.value('protocol', 'http://');
+   container.value('host', 'example.com');
+}
+
+var container = new Blister();
+container.register(provider);
+```
+
+Example with object:
 
 ```javascript
 var provider = {
