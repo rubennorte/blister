@@ -35,6 +35,7 @@ function checkId(id) {
  */
 function BlisterContainer() {
   this._deps = Object.create(null);
+  this._cache = Object.create(null);
 }
 
 BlisterContainer.IllegalExtensionError = IllegalExtensionError;
@@ -54,6 +55,19 @@ BlisterContainer.prototype = {
   has: function(id) {
     checkId(id);
     return id in this._deps;
+  },
+
+  /**
+   * Returns a list with all the keys available in the container
+   * @return {string[]}
+   */
+  keys: function() {
+    var keys = [];
+    /* eslint guard-for-in: 0 */
+    for (var i in this._deps) {
+      keys.push(i);
+    }
+    return keys;
   },
 
   /**
@@ -148,6 +162,7 @@ BlisterContainer.prototype = {
         throw new UnregisteredExtendedDependencyError();
       }
 
+      /* eslint no-param-reassign: 0 */
       type = originalWrapper.type;
       if (type === VALUE) {
         type = SINGLETON;
@@ -158,7 +173,7 @@ BlisterContainer.prototype = {
       throw new TypeError('The argument must be a function: ' + value);
     }
 
-    this._deps[id] = wrappers.create(type, value, this, originalWrapper);
+    this._deps[id] = wrappers.create(type, value, originalWrapper);
     return this;
   },
 
@@ -177,15 +192,29 @@ BlisterContainer.prototype = {
   },
 
   /**
-   * Creates a new context for the current dependency injection container.
-   * A context inherits all the dependencies of its parent container and can
+   * Creates a new scope for the current dependency injection container.
+   * A scope inherits all the dependencies of its parent container and can
    * define its own dependencies that shadow the ones of the container.
    * @return {BlisterContainer}
    */
-  createContext: function() {
-    var context = Object.create(BlisterContainer.prototype);
-    context._deps = Object.create(this._deps);
-    return context;
+  createScope: function() {
+    var scope = new BlisterContainer();
+    scope._deps = Object.create(this._deps);
+    return scope;
+  },
+
+  /**
+   * Creates a new scope with the contents of the given object registered as
+   * value dependencies
+   * @param  {Object.<string,*>} values
+   * @return {BlisterContainer}
+   */
+  withScope: function(values) {
+    var scope = this.createScope();
+    Object.keys(values).forEach(function(depId) {
+      scope.value(depId, values[depId]);
+    });
+    return scope;
   }
 
 };
@@ -282,6 +311,18 @@ module.exports = {
 },{}],3:[function(require,module,exports){
 'use strict';
 
+var count = 0;
+
+/**
+ * Creates a process-wide unique service id
+ * @private
+ * @return {string}
+ */
+function createServiceId() {
+  count++;
+  return 'service-' + count;
+}
+
 /**
  * Wrapper functions to store the different types of dependencies in the
  * container
@@ -304,14 +345,13 @@ var wrappers = {
   /**
    * Returns a wrapper for a factory dependency to be stored in the container
    * @param {Function} value The factory function
-   * @param {BlisterContainer} container
    * @param {Function} [originalWrapper]
    * @return {Function}
    */
-  factory: function wrapFactory(value, container, originalWrapper) {
+  factory: function wrapFactory(value, originalWrapper) {
     return function() {
       if (originalWrapper) {
-        return value.call(this, originalWrapper(), this);
+        return value.call(this, originalWrapper.call(this), this);
       }
       return value.call(this, this);
     };
@@ -324,20 +364,19 @@ var wrappers = {
    * @param {Function} [originalWrapper]
    * @return {Function}
    */
-  singleton: function wrapSingleton(value, container, originalWrapper) {
-    var cached = false;
-    var cachedValue;
+  singleton: function wrapSingleton(value, originalWrapper) {
+    var serviceId = createServiceId();
     return function() {
-      if (!cached) {
+      var service = this._cache[serviceId];
+      if (!service) {
         if (originalWrapper) {
-          cachedValue = value.call(container, originalWrapper(), container);
+          service = value.call(this, originalWrapper.call(this), this);
         } else {
-          cachedValue = value.call(container, container);
+          service = value.call(this, this);
         }
-        cached = true;
-        value = null;
+        this._cache[serviceId] = service;
       }
-      return cachedValue;
+      return service;
     };
   },
 
