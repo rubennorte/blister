@@ -56,11 +56,15 @@ BlisterContainer.prototype = {
   },
 
   /**
-   * Returns a list with all the keys registered in the container
+   * Returns a list with all the keys available in the container
    * @return {string[]}
    */
   keys: function() {
-    return Object.keys(this._deps);
+    var keys = [];
+    for (var i in this._deps) {
+      keys.push(i);
+    }
+    return keys;
   },
 
   /**

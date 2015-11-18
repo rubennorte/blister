@@ -566,6 +566,13 @@ describe('BlisterContainer', function() {
         expect(container.get('value-dep')).toEqual('value');
       });
 
+      it('should return the keys of the parent and its own', function() {
+        container.value('container-value', 1);
+        var scope = container.createScope();
+        scope.value('scope-value', 1);
+        expect(scope.keys()).toEqual(['scope-value', 'container-value']);
+      });
+
     });
 
     describe('factories defined in the scope of a container', function() {
