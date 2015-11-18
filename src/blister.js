@@ -147,6 +147,7 @@ BlisterContainer.prototype = {
         throw new UnregisteredExtendedDependencyError();
       }
 
+      /* eslint no-param-reassign: 0 */
       type = originalWrapper.type;
       if (type === VALUE) {
         type = SINGLETON;

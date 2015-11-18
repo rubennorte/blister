@@ -34,9 +34,7 @@
     "dist"
   ],
   "scripts": {
-    "lint:errors": "jshint src test --reporter node_modules/jshint-stylish/stylish.js --verbose",
-    "lint:style": "jscs src test --verbose",
-    "lint": "npm run lint:errors && npm run lint:style",
+    "lint": "eslint src test/unit/specs",
     "browserify:js": "browserify src/blister.js --standalone Blister --debug | exorcist dist/blister.js.map > dist/blister.js",
     "uglify:js": "uglifyjs dist/blister.js -o dist/blister.min.js --compress --mangle --in-source-map dist/blister.js.map --source-map dist/blister.min.js.map --source-map-url blister.min.js.map",
     "build:js": "npm run browserify:js && npm run uglify:js",
@@ -56,12 +54,11 @@
   "dependencies": {},
   "devDependencies": {
     "browserify": "^9.0.3",
+    "eslint": "^1.9.0",
+    "eslint-config-airbnb": "^1.0.0",
     "exorcist": "^0.3.0",
     "jasmine-core": "^2.2.0",
-    "jscs": "^1.12.0",
     "jsdoc": "^3.3.0-beta3",
-    "jshint": "^2.6.3",
-    "jshint-stylish": "^1.0.1",
     "karma": "^0.12.31",
     "karma-chrome-launcher": "^0.1.7",
     "karma-cli": "0.0.4",

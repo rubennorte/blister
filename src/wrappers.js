@@ -53,6 +53,7 @@ var wrappers = {
           cachedValue = value.call(container, container);
         }
         cached = true;
+        /* eslint no-param-reassign: 0 */
         value = null;
       }
       return cachedValue;
