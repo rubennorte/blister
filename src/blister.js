@@ -62,6 +62,7 @@ BlisterContainer.prototype = {
    */
   keys: function() {
     var keys = [];
+    /* eslint guard-for-in: 0 */
     for (var i in this._deps) {
       keys.push(i);
     }
