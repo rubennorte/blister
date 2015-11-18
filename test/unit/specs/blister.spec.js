@@ -660,4 +660,19 @@ describe('BlisterContainer', function() {
 
   });
 
+  describe('#withScope(values)', function() {
+
+    it('should return a new scope with the passed keys registered as values', function() {
+      var newScope = new BlisterContainer();
+      spyOn(container, 'createScope').and.returnValue(newScope);
+
+      var scope = container.withScope({value1: 'value1', value2: 'value2'});
+
+      expect(scope).toBe(newScope);
+      expect(scope.get('value1')).toBe('value1');
+      expect(scope.get('value2')).toBe('value2');
+    });
+
+  });
+
 });

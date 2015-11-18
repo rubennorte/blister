@@ -177,7 +177,7 @@ Example with requests:
 ```javascript
 var container = new Blister();
 container.service('logger', function(c) {
-  return 'log from user' + c.get('request').username;
+  return 'log from user ' + c.get('request').username;
 });
 
 var johnRequestScope = container.createScope();
@@ -188,6 +188,9 @@ paulRequestScope.value('request', {username: 'Paul'});
 
 johnRequestScope.get('logger'); // 'log from user John'
 paulRequestScope.get('logger'); // 'log from user Paul'
+
+// Or shorter...
+container.withScope({ request: { username: 'Laura' } }).get('logger'); // 'log from user Laura'
 ```
 
 ## Documentation

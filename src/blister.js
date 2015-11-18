@@ -200,6 +200,20 @@ BlisterContainer.prototype = {
     var scope = new BlisterContainer();
     scope._deps = Object.create(this._deps);
     return scope;
+  },
+
+  /**
+   * Creates a new scope with the contents of the given object registered as
+   * value dependencies
+   * @param  {Object.<string,*>} values
+   * @return {BlisterContainer}
+   */
+  withScope: function(values) {
+    var scope = this.createScope();
+    Object.keys(values).forEach(function(depId) {
+      scope.value(depId, values[depId]);
+    });
+    return scope;
   }
 
 };
