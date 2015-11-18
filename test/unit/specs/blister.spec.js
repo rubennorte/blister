@@ -22,7 +22,7 @@ describe('BlisterContainer', function() {
     expect(BlisterContainer.prototype.service).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.register).toEqual(jasmine.any(Function));
     expect(BlisterContainer.prototype.extend).toEqual(jasmine.any(Function));
-    expect(BlisterContainer.prototype.createContext).toEqual(jasmine.any(Function));
+    expect(BlisterContainer.prototype.createScope).toEqual(jasmine.any(Function));
 
     expect(BlisterContainer.IllegalExtensionError).toEqual(jasmine.any(Function));
     expect(BlisterContainer.UnregisteredExtendedDependencyError).toEqual(jasmine.any(Function));
@@ -462,13 +462,13 @@ describe('BlisterContainer', function() {
 
   });
 
-  describe('#createContext', function() {
+  describe('#createScope()', function() {
 
     it('should return a new BlisterContainer instance', function() {
-      var context = container.createContext();
+      var scope = container.createScope();
 
-      expect(context).toEqual(jasmine.any(BlisterContainer));
-      expect(context).not.toBe(container);
+      expect(scope).toEqual(jasmine.any(BlisterContainer));
+      expect(scope).not.toBe(container);
     });
 
     describe('the new BlisterContainer instance', function() {
@@ -482,15 +482,15 @@ describe('BlisterContainer', function() {
         });
         container.value('value-dep', 'value');
 
-        var context = container.createContext();
+        var scope = container.createScope();
 
-        expect(context.get('service-dep')).toEqual('service');
-        expect(context.get('factory-dep')).toEqual('factory');
-        expect(context.get('value-dep')).toEqual('value');
+        expect(scope.get('service-dep')).toEqual('service');
+        expect(scope.get('factory-dep')).toEqual('factory');
+        expect(scope.get('value-dep')).toEqual('value');
       });
 
       it('should inherit all the future dependencies of the container', function() {
-        var context = container.createContext();
+        var scope = container.createScope();
 
         container.service('service-dep', function() {
           return 'service';
@@ -500,9 +500,9 @@ describe('BlisterContainer', function() {
         });
         container.value('value-dep', 'value');
 
-        expect(context.get('service-dep')).toEqual('service');
-        expect(context.get('factory-dep')).toEqual('factory');
-        expect(context.get('value-dep')).toEqual('value');
+        expect(scope.get('service-dep')).toEqual('service');
+        expect(scope.get('factory-dep')).toEqual('factory');
+        expect(scope.get('value-dep')).toEqual('value');
       });
 
       it('should shadow the dependencies of the container', function() {
@@ -514,19 +514,19 @@ describe('BlisterContainer', function() {
         });
         container.value('value-dep', 'value');
 
-        var context = container.createContext();
+        var scope = container.createScope();
 
-        context.service('service-dep', function() {
-          return 'context-service';
+        scope.service('service-dep', function() {
+          return 'scope-service';
         });
-        context.factory('factory-dep', function() {
-          return 'context-factory';
+        scope.factory('factory-dep', function() {
+          return 'scope-factory';
         });
-        context.value('value-dep', 'context-value');
+        scope.value('value-dep', 'scope-value');
 
-        expect(context.get('service-dep')).toEqual('context-service');
-        expect(context.get('factory-dep')).toEqual('context-factory');
-        expect(context.get('value-dep')).toEqual('context-value');
+        expect(scope.get('service-dep')).toEqual('scope-service');
+        expect(scope.get('factory-dep')).toEqual('scope-factory');
+        expect(scope.get('value-dep')).toEqual('scope-value');
       });
 
       it('should be able to extend the dependencies of the container', function() {
@@ -534,12 +534,12 @@ describe('BlisterContainer', function() {
           return 'service';
         });
 
-        var context = container.createContext();
-        context.extend('service-dep', function(service) {
-          return 'context-' + service;
+        var scope = container.createScope();
+        scope.extend('service-dep', function(service) {
+          return 'scope-' + service;
         });
 
-        expect(context.get('service-dep')).toEqual('context-service');
+        expect(scope.get('service-dep')).toEqual('scope-service');
       });
 
       it('should not modify the dependencies of the container', function() {
@@ -551,15 +551,15 @@ describe('BlisterContainer', function() {
         });
         container.value('value-dep', 'value');
 
-        var context = container.createContext();
+        var scope = container.createScope();
 
-        context.service('service-dep', function() {
-          return 'context-service';
+        scope.service('service-dep', function() {
+          return 'scope-service';
         });
-        context.factory('factory-dep', function() {
-          return 'context-factory';
+        scope.factory('factory-dep', function() {
+          return 'scope-factory';
         });
-        context.value('value-dep', 'context-value');
+        scope.value('value-dep', 'scope-value');
 
         expect(container.get('service-dep')).toEqual('service');
         expect(container.get('factory-dep')).toEqual('factory');
@@ -570,17 +570,17 @@ describe('BlisterContainer', function() {
 
     describe('factories defined in the scope of a container', function() {
 
-      it('should use dependencies of a context when accessing through it', function() {
+      it('should use dependencies of a scope when accessing through it', function() {
         container.factory('factory-dep', function(c) {
           return 'got ' + c.get('sub-dep');
         });
 
-        var context = container.createContext();
-        context.factory('sub-dep', function() {
-          return 'context-dep';
+        var scope = container.createScope();
+        scope.factory('sub-dep', function() {
+          return 'scope-dep';
         });
 
-        expect(context.get('factory-dep')).toEqual('got context-dep');
+        expect(scope.get('factory-dep')).toEqual('got scope-dep');
       });
 
       it('should use dependencies of the container when accessing through it', function() {
@@ -588,9 +588,9 @@ describe('BlisterContainer', function() {
           return 'got ' + c.get('sub-dep');
         });
 
-        var context = container.createContext();
-        context.factory('sub-dep', function() {
-          return 'context-dep';
+        var scope = container.createScope();
+        scope.factory('sub-dep', function() {
+          return 'scope-dep';
         });
 
         expect(function() {
@@ -607,19 +607,19 @@ describe('BlisterContainer', function() {
 
     describe('services defined in the scope of a container', function() {
 
-      it('should NOT use dependencies of a context when accessing through it', function() {
+      it('should NOT use dependencies of a scope when accessing through it', function() {
         container.service('service-dep', function(c) {
           return 'got ' + c.get('factory-dep');
         });
 
-        var context = container.createContext();
+        var scope = container.createScope();
 
-        context.factory('factory-dep', function() {
-          return 'context-factory';
+        scope.factory('factory-dep', function() {
+          return 'scope-factory';
         });
 
         expect(function() {
-          context.get('service-dep');
+          scope.get('service-dep');
         }).toThrowError(BlisterContainer.UnregisteredDependencyError);
       });
 
@@ -628,9 +628,9 @@ describe('BlisterContainer', function() {
           return 'got ' + c.get('factory-dep');
         });
 
-        var context = container.createContext();
-        context.factory('factory-dep', function() {
-          return 'context-factory';
+        var scope = container.createScope();
+        scope.factory('factory-dep', function() {
+          return 'scope-factory';
         });
 
         expect(function() {
