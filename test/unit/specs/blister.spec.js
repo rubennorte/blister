@@ -471,7 +471,7 @@ describe('BlisterContainer', function() {
       expect(scope).not.toBe(container);
     });
 
-    describe('the new BlisterContainer instance', function() {
+    describe('the new scoped container', function() {
 
       it('should inherit all the current dependencies of the container', function() {
         container.service('service-dep', function() {
@@ -575,7 +575,7 @@ describe('BlisterContainer', function() {
 
     });
 
-    describe('factories defined in the scope of a container', function() {
+    describe('factories defined inside a parent container', function() {
 
       it('should use dependencies of a scope when accessing through it', function() {
         container.factory('factory-dep', function(c) {
@@ -612,22 +612,19 @@ describe('BlisterContainer', function() {
 
     });
 
-    describe('services defined in the scope of a container', function() {
+    describe('services defined inside a parent container', function() {
 
-      it('should NOT use dependencies of a scope when accessing through it', function() {
+      it('should use dependencies of a scope when accessing through it', function() {
         container.service('service-dep', function(c) {
-          return 'got ' + c.get('factory-dep');
+          return 'got ' + c.get('sub-dep');
         });
 
         var scope = container.createScope();
-
-        scope.factory('factory-dep', function() {
-          return 'scope-factory';
+        scope.service('sub-dep', function() {
+          return 'scope-dep';
         });
 
-        expect(function() {
-          scope.get('service-dep');
-        }).toThrowError(BlisterContainer.UnregisteredDependencyError);
+        expect(scope.get('service-dep')).toEqual('got scope-dep');
       });
 
       it('should use dependencies of the container when accessing through it', function() {
@@ -648,6 +645,15 @@ describe('BlisterContainer', function() {
           return 'container-factory';
         });
         expect(container.get('service-dep')).toEqual('got container-factory');
+      });
+
+      it('should be cached in the calling scope', function() {
+        container.service('count-value', createCounter());
+        var scope = container.createScope();
+        expect(container.get('count-value')).toBe(1);
+        expect(container.get('count-value')).toBe(1);
+        expect(scope.get('count-value')).toBe(2);
+        expect(scope.get('count-value')).toBe(2);
       });
 
     });
