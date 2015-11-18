@@ -47,6 +47,8 @@ container.value('name', 'Robert');
 
 container.get('name'); //> 'Robert'
 container.has('name'); //> true
+
+container.keys(); //> ['name']
 ```
 
 #### Setting values

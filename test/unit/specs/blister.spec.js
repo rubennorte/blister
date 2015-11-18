@@ -107,6 +107,18 @@ describe('BlisterContainer', function() {
 
   });
 
+  describe('#keys()', function() {
+
+    it('should return the keys of all the registered dependencies', function() {
+      container.value('some-value', 3);
+      container.service('some-service', function() {});
+      container.factory('some-factory', function() {});
+
+      expect(container.keys()).toEqual(['some-value', 'some-service', 'some-factory']);
+    });
+
+  });
+
   describe('#value(id, argument)', function() {
 
     it('should register so get(id) returns the argument', function() {

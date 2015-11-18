@@ -56,6 +56,14 @@ BlisterContainer.prototype = {
   },
 
   /**
+   * Returns a list with all the keys registered in the container
+   * @return {string[]}
+   */
+  keys: function() {
+    return Object.keys(this._deps);
+  },
+
+  /**
    * Returns the dependency set with the given id,
    * or undefined if it is not present
    * @param  {string} id
