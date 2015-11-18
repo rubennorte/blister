@@ -28,7 +28,7 @@ module.exports = function(config) {
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
     reporters: ['progress', 'verbose', 'junit'],
     junitReporter: {
-      outputFile: 'output/unit-test-results.xml'
+      outputDir: 'output'
     },
 
     // web server port
