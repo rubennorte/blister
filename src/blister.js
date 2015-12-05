@@ -63,6 +63,7 @@ BlisterContainer.prototype = {
     var keys = [];
     /* eslint guard-for-in: 0 */
     for (var i in this._deps) {
+      // No need for Object.hasOwnProperty here as deps prototype is null
       keys.push(i);
     }
     return keys;
