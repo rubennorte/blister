@@ -34,7 +34,6 @@ function checkId(id) {
  */
 function BlisterContainer() {
   this._deps = Object.create(null);
-  this._cache = Object.create(null);
 }
 
 BlisterContainer.IllegalExtensionError = IllegalExtensionError;
@@ -172,7 +171,7 @@ BlisterContainer.prototype = {
       throw new TypeError('The argument must be a function: ' + value);
     }
 
-    this._deps[id] = wrappers.create(type, value, originalWrapper);
+    this._deps[id] = wrappers.create(type, value, this, originalWrapper);
     return this;
   },
 
@@ -197,7 +196,7 @@ BlisterContainer.prototype = {
    * @return {BlisterContainer}
    */
   createScope: function() {
-    var scope = new BlisterContainer();
+    var scope = Object.create(BlisterContainer.prototype);
     scope._deps = Object.create(this._deps);
     return scope;
   },

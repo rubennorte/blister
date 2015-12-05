@@ -1,17 +1,5 @@
 'use strict';
 
-var count = 0;
-
-/**
- * Creates a process-wide unique service id
- * @private
- * @return {string}
- */
-function createServiceId() {
-  count++;
-  return 'service-' + count;
-}
-
 /**
  * Wrapper functions to store the different types of dependencies in the
  * container
@@ -34,13 +22,14 @@ var wrappers = {
   /**
    * Returns a wrapper for a factory dependency to be stored in the container
    * @param {Function} value The factory function
+   * @param {BlisterContainer} container
    * @param {Function} [originalWrapper]
    * @return {Function}
    */
-  factory: function wrapFactory(value, originalWrapper) {
+  factory: function wrapFactory(value, container, originalWrapper) {
     return function() {
       if (originalWrapper) {
-        return value.call(this, originalWrapper.call(this), this);
+        return value.call(this, originalWrapper(), this);
       }
       return value.call(this, this);
     };
@@ -53,19 +42,21 @@ var wrappers = {
    * @param {Function} [originalWrapper]
    * @return {Function}
    */
-  singleton: function wrapSingleton(value, originalWrapper) {
-    var serviceId = createServiceId();
+  singleton: function wrapSingleton(value, container, originalWrapper) {
+    var cached = false;
+    var cachedValue;
     return function() {
-      var service = this._cache[serviceId];
-      if (!service) {
+      if (!cached) {
         if (originalWrapper) {
-          service = value.call(this, originalWrapper.call(this), this);
+          cachedValue = value.call(container, originalWrapper(), container);
         } else {
-          service = value.call(this, this);
+          cachedValue = value.call(container, container);
         }
-        this._cache[serviceId] = service;
+        cached = true;
+        /* eslint no-param-reassign: 0 */
+        value = null;
       }
-      return service;
+      return cachedValue;
     };
   },
 
