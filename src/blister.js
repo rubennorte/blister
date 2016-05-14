@@ -188,32 +188,6 @@ BlisterContainer.prototype = {
       provider.register(this);
     }
     return this;
-  },
-
-  /**
-   * Creates a new scope for the current dependency injection container.
-   * A scope inherits all the dependencies of its parent container and can
-   * define its own dependencies that shadow the ones of the container.
-   * @return {BlisterContainer}
-   */
-  createScope: function() {
-    var scope = Object.create(BlisterContainer.prototype);
-    scope._deps = Object.create(this._deps);
-    return scope;
-  },
-
-  /**
-   * Creates a new scope with the contents of the given object registered as
-   * value dependencies
-   * @param  {Object.<string,*>} values
-   * @return {BlisterContainer}
-   */
-  withScope: function(values) {
-    var scope = this.createScope();
-    Object.keys(values).forEach(function(depId) {
-      scope.value(depId, values[depId]);
-    });
-    return scope;
   }
 
 };
