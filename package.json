@@ -1,6 +1,6 @@
 {
   "name": "blister",
-  "version": "0.14.0",
+  "version": "1.0.0",
   "author": "Rubén Norte <rubennorte@gmail.com>",
   "description": "Minimalist dependency injection container for JavaScript",
   "license": "MIT",
@@ -35,48 +35,40 @@
   ],
   "scripts": {
     "build": "npm run build:js",
-      "build:js": "npm run browserify:js && npm run uglify:js",
-      "browserify:js": "browserify src/blister.js --standalone Blister --debug | exorcist dist/blister.js.map > dist/blister.js",
-      "uglify:js": "uglifyjs dist/blister.js -o dist/blister.min.js --compress --mangle --in-source-map dist/blister.js.map --source-map dist/blister.min.js.map --source-map-url blister.min.js.map",
-
+    "build:js": "npm run browserify:js && npm run uglify:js",
+    "browserify:js": "browserify src/blister.js --standalone Blister --debug | exorcist dist/blister.js.map > dist/blister.js",
+    "uglify:js": "uglifyjs dist/blister.js -o dist/blister.min.js --compress --mangle --in-source-map dist/blister.js.map --source-map dist/blister.min.js.map --source-map-url blister.min.js.map",
     "pretest": "npm run lint",
-      "lint": "eslint src test/unit/specs",
+    "lint": "eslint src test/unit/specs",
     "test": "npm run build:tests && npm run karma:ci",
-      "build:tests": "npm run browserify:tests",
-        "browserify:tests": "browserify test/unit/index.js -o test/unit/gen/unit-test-bundle.js --debug",
-      "karma:ci": "karma start test/unit/config/karma-ci.conf.js",
-
+    "build:tests": "npm run browserify:tests",
+    "browserify:tests": "browserify test/unit/index.js -o test/unit/gen/unit-test-bundle.js --debug",
+    "karma:ci": "karma start test/unit/config/karma-ci.conf.js",
     "develop": "npm-run-all --parallel watchify:tests karma:dev",
-      "watchify:tests": "watchify test/unit/index.js -o test/unit/gen/unit-test-bundle.js --verbose",
-      "karma:dev": "karma start test/unit/config/karma-dev.conf.js",
-
+    "watchify:tests": "watchify test/unit/index.js -o test/unit/gen/unit-test-bundle.js --verbose",
+    "karma:dev": "karma start test/unit/config/karma-dev.conf.js",
     "release": "mversion -m \"New version: %s\"",
-      "prepare-release": "npm test && npm run build",
-
+    "prepare-release": "npm test && npm run build",
     "doc": "npm run doc:js",
-      "doc:js": "jsdoc src --destination doc/js --readme README.md --verbose"
+    "doc:js": "jsdoc src --destination doc/js --readme README.md --verbose"
   },
   "dependencies": {},
   "devDependencies": {
     "browserify": "^9.0.3",
-      "watchify": "^2.4.0",
-      "exorcist": "^0.3.0",
-
+    "watchify": "^2.4.0",
+    "exorcist": "^0.3.0",
     "uglifyjs": "^2.4.10",
-
     "eslint": "^1.9.0",
-      "eslint-config-airbnb": "^1.0.0",
-
+    "eslint-config-airbnb": "^1.0.0",
     "karma": "^0.13.15",
-      "jasmine-core": "^2.3.4",
-      "karma-jasmine": "^0.3.6",
-      "karma-junit-reporter": "^0.3.8",
-      "karma-phantomjs-launcher": "^0.2.1",
-      "karma-sourcemap-loader": "^0.3.6",
-      "karma-verbose-reporter": "0.0.3",
-      "phantomjs": "^1.9.18",
-      "phantomjs-polyfill": "0.0.1",
-
+    "jasmine-core": "^2.3.4",
+    "karma-jasmine": "^0.3.6",
+    "karma-junit-reporter": "^0.3.8",
+    "karma-phantomjs-launcher": "^0.2.1",
+    "karma-sourcemap-loader": "^0.3.6",
+    "karma-verbose-reporter": "0.0.3",
+    "phantomjs": "^1.9.18",
+    "phantomjs-polyfill": "0.0.1",
     "jsdoc": "^3.4.0",
     "npm-run-all": "^1.3.3",
     "mversion": "^1.10.1"
