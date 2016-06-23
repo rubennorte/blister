@@ -75,6 +75,28 @@ describe('BlisterContainer', function() {
 
   });
 
+  describe('#pick(...ids)', function() {
+    it('should return an object with the given dependencies', function() {
+      var a = 'foo';
+      var b = 'bar';
+      var c = 'baz';
+      container.service('a', function() {
+        return a;
+      });
+      container.factory('b', function() {
+        return b;
+      });
+      container.value('c', c);
+
+      var dependencies = container.pick('a', 'b', 'c');
+      expect(dependencies).toEqual({
+        a: a,
+        b: b,
+        c: c
+      });
+    });
+  });
+
   describe('#has(id)', function() {
 
     describe('when there is a dependency with the given id', function() {
