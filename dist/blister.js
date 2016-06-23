@@ -81,6 +81,20 @@ BlisterContainer.prototype = {
   },
 
   /**
+   * Returns the dependencies with the given ids as an object.
+   * @param {...string} ids Dependency ids to return as keys
+   * @return {Object}
+   */
+  pick: function() {
+    var ids = [].slice.call(arguments);
+    var self = this;
+    return ids.reduce(function(deps, id) {
+      deps[id] = self.get(id);
+      return deps;
+    }, {});
+  },
+
+  /**
    * Registers the given value with the specified id
    * @param  {string} id
    * @param  {*} value
