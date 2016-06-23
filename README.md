@@ -44,11 +44,13 @@ Example:
 
 ```js
 container.value('name', 'Robert');
+container.value('surname', 'Baratheon');
 
 container.get('name'); //> 'Robert'
 container.has('name'); //> true
+container.pick('name', 'surname'); //> { name: 'Robert', surname: 'Baratheon' }
 
-container.keys(); //> ['name']
+container.keys(); //> ['name', 'surname']
 ```
 
 #### Setting values
