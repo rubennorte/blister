@@ -1,7 +1,4 @@
-[![npm](https://img.shields.io/npm/l/blister.svg)](https://www.npmjs.org/package/blister)
-[![npm](https://img.shields.io/npm/v/blister.svg)](https://www.npmjs.org/package/blister)
-
-# Blister
+# Blister [![npm](https://img.shields.io/npm/l/blister.svg)](https://www.npmjs.org/package/blister) [![npm](https://img.shields.io/npm/v/blister.svg)](https://www.npmjs.org/package/blister) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contribute)
 
 Minimalist dependency injection container for JavaScript.
 
