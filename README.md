@@ -178,7 +178,7 @@ npm install && npm test
 
 ## License
 
-Copyright (c) 2015-2016 Rubén Norte <rubennorte@gmail.com>
+Copyright (c) 2015-2016 Rubén Norte
 
 MIT License
 
